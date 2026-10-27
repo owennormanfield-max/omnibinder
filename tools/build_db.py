@@ -36,7 +36,7 @@ for c in C:
     alt = alt.replace(PFX, '') if alt.startswith(PFX) else alt
     cards.append([simap[c['set']], c['num'], c.get('name') or {}, idx(cat, c.get('cat')), idx(rar, r), c.get('hp') or 0,
                   [idx(typ, t) for t in (c.get('types') or [])], idx(stage, c.get('stage')), rg or '', (c.get('dex') or [0])[0] or 0,
-                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or ''])
+                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or '', c.get('ox') or {}])
 def sdate(s):
     dd = s['d']
     if isinstance(dd, dict): dd = min(dd.values()) if dd else ''
