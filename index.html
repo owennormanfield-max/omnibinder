@@ -239,7 +239,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.0410";</script>
+<script>const BUILD="2026-10-27.0500";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -391,14 +391,16 @@ const sdateAny=s=>typeof s.d==='string'?s.d:(s.d?Object.values(s.d).sort()[0]||'
 const rarName=c=>c[4]>=0?RAR[c[4]]:'';
 const typeNames=c=>c[6].map(t=>TYP[t]);
 const typeColor=c=>{const t=typeNames(c)[0];if(t)return 'var(--t-'+t+')';return c[3]===1?'var(--t-Trainer)':c[3]===2?'var(--t-Energy)':'var(--t-Colorless)';};
-const imgLang=(c,s)=>s.r==='asia'?(c.langs.includes(L())?L():c.langs[0]):(c.langs.includes(L())?L():'en');
+const imgLang=(c,s)=>{const sc=c[15]||[];if(!sc.length)return null;if(sc.includes(L()))return L();if(sc.includes('en'))return 'en';return sc[0];};
+const JPIMG='https://www.pokemon-card.com/assets/images/card_images/large/';
 const PIMG='https://images.pokemontcg.io/';
 const BACKS=new Map();
 window.checkBack=function(img){const url=img.src;if(BACKS.has(url)){if(BACKS.get(url))img.remove();return;}
   const probe=new Image();probe.crossOrigin='anonymous';probe.onload=()=>{let back=false;try{const cv=document.createElement('canvas');cv.width=8;cv.height=8;const x=cv.getContext('2d');x.drawImage(probe,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let blue=0;for(let i=0;i<d.length;i+=4){if(d[i+2]>d[i]+40&&d[i+2]>d[i+1]+10)blue++;}back=blue>=28;}catch(e){back=false;}
     BACKS.set(url,back);if(back)document.querySelectorAll('img.img[src="'+url+'"]').forEach(el=>el.remove());};probe.onerror=()=>BACKS.set(url,false);probe.src=url;};
-const imgUrl=(c,s,lc)=>c[13]?PIMG+c[13]:'https://assets.tcgdex.net/'+imgLang(c,s)+'/'+(lc?(s.si||'').toLowerCase():(s.si||''))+'/'+(lc?s.i.toLowerCase():s.i)+'/'+c[1]+'/low.webp';
-const apiUrl=(c,s)=>'https://api.tcgdex.net/v2/'+imgLang(c,s)+'/cards/'+s.i+'-'+c[1];
+const imgUrl=(c,s)=>{if(c[13])return PIMG+c[13];const lg=imgLang(c,s);if(lg)return 'https://assets.tcgdex.net/'+lg+'/'+(s.si||'')+'/'+s.i+'/'+c[1]+'/low.webp';if(c[16])return JPIMG+c[16];if(c[14])return PIMG+c[14];return '';};
+const imgAlts=(c,s)=>{const out=[];const lg=imgLang(c,s);if(lg&&c[16])out.push(JPIMG+c[16]);if((lg||c[16])&&c[14])out.push(PIMG+c[14]);return out;};
+const apiUrl=(c,s)=>'https://api.tcgdex.net/v2/'+(imgLang(c,s)||(c.langs.includes(L())?L():c.langs[0]))+'/cards/'+s.i+'-'+c[1];
 const pcUrl=(c,s)=>'https://www.pricecharting.com/search-products?type=prices&q='+encodeURIComponent('pokemon '+(s.n.en||sname(s))+' '+(c[2].en||cname(c))+' '+c[1].replace(/^0+(?=\d)/,''));
 const tcgdexUrl=(c,s)=>'https://www.tcgdex.net/database/'+(s.si||'')+'/'+s.i+'/'+c[1];
 const RARSHORT=r=>r.replace('Illustration','Illus.').replace('Special illustration','Spec. illus.').replace('Rare Holo','Holo R.').replace(' Rare','');
@@ -464,7 +466,7 @@ function tile(p){
   const fx='',st='';
   const pill=F.unit==='print'?`<span class="vpill"><span class="vi">${vicon(v)}</span>${esc(vshort(v))}</span>`:(nv>1?`<span class="vpill"><span class="vi">${ICON.var}</span>${nv} printings</span>`:'');
   return `<button class="card${own?' owned':''}${fx}" data-i="${p}" data-c="${i}" style="--c1:${col};--c2:${t2?'var(--t-'+t2+')':col}" aria-label="${esc(cname(c))} ${esc(c[1])}">
-    ${F.img?`<img class="img" loading="lazy" alt="" src="${imgUrl(c,s)}" data-alt="${imgUrl(c,s,true)}" data-alt2="${c[14]?PIMG+c[14]:''}" onerror="if(this.dataset.alt){this.src=this.dataset.alt;delete this.dataset.alt}else if(this.dataset.alt2){this.src=this.dataset.alt2;this.dataset.fb='1';delete this.dataset.alt2}else this.remove()" onload="if(this.dataset.fb)checkBack(this)">`:''}
+    ${F.img&&imgUrl(c,s)?`<img class="img" loading="lazy" alt="" src="${imgUrl(c,s)}" data-alts="${esc(imgAlts(c,s).join('|'))}" onerror="const a=(this.dataset.alts||'').split('|').filter(Boolean);if(a.length){this.src=a.shift();this.dataset.alts=a.join('|');this.dataset.fb=this.src.includes('pokemontcg.io')?'1':''}else this.remove()" onload="if(this.dataset.fb)checkBack(this)">`:''}
     <div class="band"><span class="noscan">No scan yet</span></div>${pill}
     ${c[8]?`<span class="mark">${esc(c[8])}</span>`:''}
     <span class="num">${esc(c[1])}${s.c?'/'+s.c:''}</span>
