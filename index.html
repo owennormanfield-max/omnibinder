@@ -239,7 +239,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.1659";</script>
+<script>const BUILD="2026-10-27.1702";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -384,6 +384,7 @@ function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('sh
 
 // ---------- helpers ----------
 const L=()=>F.lang;
+const vok=v=>!v[5]||v[5].includes(L());
 const cname=c=>c[2][L()]||c[2].en||Object.values(c[2])[0]||'';
 const sname=s=>s.n[L()]||s.n.en||s.n.ja||Object.values(s.n)[0]||s.i;
 const sdate=s=>typeof s.d==='string'?s.d:(s.d?(s.d[L()]||Object.values(s.d).sort()[0]||''):'');
@@ -432,6 +433,7 @@ function matches(c){
 }
 function vmatch(c,vi){
   const v=c[11][vi];const s=SETS[c[0]];
+  if(!vok(v))return false;
   if(Q){for(const p of Q.split(' ')){if(!(c.search.includes(p)||s.search.includes(p))&&!c.vs[vi].includes(p))return false;}}
   if(F.vars.length){const toks=new Set(['t:'+VT[v[0]],...(v[1]>=0?['st:'+VST[v[1]]]:[]),...v[2].map(x=>'s:'+VSTAMP[x]),...(v[3]>=0?['f:'+VFOIL[v[3]]]:[]),...(v[4]?['sz:jumbo']:[])]);if(!F.vars.some(t=>toks.has(t)))return false;}
   if(F.state!=='all'){const e=COLL[c.sid];const own=!!(e&&e.o&&e.o[vkey(v)]);if(F.state==='owned'&&!own)return false;if(F.state==='missing'&&own)return false;}
@@ -454,7 +456,7 @@ let RESULT=[],GROUPS=[],shown=0;const PAGE=48;
 function compute(){
   Q=norm($('#q').value);
   let ids=[];
-  const emit=i=>{const c=CARDS[i];let any=false;for(let vi=0;vi<c[11].length;vi++){if(PHOTO||vmatch(c,vi)){if(F.unit==='card'){if(!any)ids.push(c.p0+vi);any=true;}else ids.push(c.p0+vi);}}};
+  const emit=i=>{const c=CARDS[i];let any=false;for(let vi=0;vi<c[11].length;vi++){if(PHOTO?vok(c[11][vi]):vmatch(c,vi)){if(F.unit==='card'){if(!any)ids.push(c.p0+vi);any=true;}else ids.push(c.p0+vi);}}};
   if(PHOTO){PHOTO.ids.forEach(emit);}
   else{for(let i=0;i<CARDS.length;i++)if(matches(CARDS[i]))emit(i);sortCards(ids);}
   RESULT=ids;GROUPS=[];
@@ -584,7 +586,7 @@ function openFilter(k){
     case 'split':return optionSheet('Split','Group the results.',[{v:'set',label:'By set'},{v:'ser',label:'By series'},{v:'none',label:'No split'}],[F.split],false,v=>{F.split=v[0];persist();});
     case 'sort':return optionSheet('Sort','Order within each group.',[['new','Release date, new → old'],['old','Release date, old → new'],['num','Card number'],['name','Name A–Z'],['rar','Rarity, highest first'],['hp','HP, highest first'],['dex','Pokédex number']].map(([v,l])=>({v,label:l})),[F.sort],false,v=>{F.sort=v[0];persist();});
     case 'state':return optionSheet('State','Owned means at least one variant is ticked.',[{v:'all',label:'Any'},{v:'owned',label:'Owned'},{v:'missing',label:'Missing'}],[F.state],false,v=>{F.state=v[0];persist();});
-    case 'vars':{const m=new Map();for(const c of CARDS){if(!c[2][F.lang])continue;for(const v of c[11]){const add=t=>m.set(t,(m.get(t)||0)+1);add('t:'+VT[v[0]]);if(v[1]>=0)add('st:'+VST[v[1]]);v[2].forEach(x=>add('s:'+VSTAMP[x]));if(v[3]>=0)add('f:'+VFOIL[v[3]]);if(v[4])add('sz:jumbo');}}
+    case 'vars':{const m=new Map();for(const c of CARDS){if(!c[2][F.lang])continue;for(const v of c[11]){if(!vok(v))continue;const add=t=>m.set(t,(m.get(t)||0)+1);add('t:'+VT[v[0]]);if(v[1]>=0)add('st:'+VST[v[1]]);v[2].forEach(x=>add('s:'+VSTAMP[x]));if(v[3]>=0)add('f:'+VFOIL[v[3]]);if(v[4])add('sz:jumbo');}}
       const grp={t:'Finish',st:'Edition / misprint',s:'Stamp',f:'Foil',sz:'Size'};const ord={t:0,st:1,f:2,sz:3,s:4};
       const opts=[...m.entries()].map(([t,n])=>({v:t,label:grp[t.split(':')[0]]+' › '+vtokLabel(t),n,o:ord[t.split(':')[0]]})).sort((a,b)=>a.o-b.o||b.n-a.n);
       return optionSheet('Variants','Any printing with one of these features: finish, edition, misprint, stamp, foil pattern or size. Use Find to jump.',opts,F.vars,true,v=>{F.vars=v;persist();});}
@@ -626,7 +628,7 @@ function openCard(p){
       <dt></dt><dd><a class="ext" target="_blank" rel="noopener" href="${pcUrl(c,s)}">PriceCharting ↗</a> &nbsp; <a class="ext" target="_blank" rel="noopener" href="${tcgdexUrl(c,s)}">TCGdex ↗</a></dd>
     </dl></div></div>
     <div class="names">${names}</div>
-    <div class="vars"><h4>Printings · ${c[11].length} · tick the ones you own</h4>${c[11].map((v,vi)=>{const k=vkey(v);const on=!!(e.o&&e.o[k]);return `<button class="vt${on?' on':''}${vi===cur?' cur':''}" data-k="${esc(k)}" role="switch" aria-checked="${on}"><span>${esc(vlabel(v))}</span><span class="sw2"></span></button>`;}).join('')}</div>
+    <div class="vars"><h4>Printings · ${c[11].length} · tick the ones you own</h4>${c[11].map((v,vi)=>{if(!vok(v))return '';const k=vkey(v);const on=!!(e.o&&e.o[k]);return `<button class="vt${on?' on':''}${vi===cur?' cur':''}" data-k="${esc(k)}" role="switch" aria-checked="${on}"><span>${esc(vlabel(v))}</span><span class="sw2"></span></button>`;}).join('')}</div>
     <div class="notes"><h4>Notes</h4><textarea id="note" placeholder="Condition, price paid, where it lives…">${esc(e.n)}</textarea><div class="saved" id="saved"></div></div>
     <div class="vars" id="infold"><h4>Folders</h4>${folderChips(p)}</div>
     <div class="row"><button class="btn pri" id="addfold">Add to folder…</button>${VIEW==='coll'&&CUR&&FOLDERS[CUR]&&FOLDERS[CUR].c.includes(pkeyOf(p))?'<button class="btn" id="rmfold">Remove from this folder</button>':''}</div>`);

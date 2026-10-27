@@ -1,0 +1,630 @@
+<script>
+(async function(){
+const $=s=>document.querySelector(s);
+const LANGS=[['en','🇺🇸','International'],['fr','🇫🇷','Français'],['de','🇩🇪','Deutsch'],['es','🇪🇸','Español'],['es-mx','🇲🇽','Español (MX)'],['it','🇮🇹','Italiano'],['pt','🇵🇹','Português'],['pt-br','🇧🇷','Português (BR)'],['ja','🇯🇵','日本語'],['ko','🇰🇷','한국어'],['zh-tw','🇹🇼','繁體中文'],['zh-cn','🇨🇳','简体中文'],['th','🇹🇭','ไทย'],['id','🇮🇩','Bahasa Indonesia']];
+const LANGSET=new Set(LANGS.map(l=>l[0]));
+const VBITS=[['normal',1,'Normal'],['holo',2,'Holo'],['reverse',4,'Reverse holo'],['metal',8,'Metal'],['lenticular',16,'Lenticular']];
+const ICON={
+  lang:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+  split:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="8" height="12" rx="2"/><rect x="13" y="6" width="8" height="12" rx="2"/></svg>',
+  sort:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m0 0-5-5m5 5 5-5"/></svg>',
+  state:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>',
+  var:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.2 5.3L20 9l-4.5 3.8L17 19l-5-3-5 3 1.5-6.2L4 9l5.8-.7z"/></svg>',
+  type:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  reg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3.5a2.5 2.5 0 0 1 0 5H9m3 0 3 3"/></svg>',
+  rar:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>',
+  notes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  cat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M3 12h6m6 0h6"/></svg>',
+  stage:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h4v-6H4zm6 0h4V6h-4zm6 0h4v-9h-4z"/></svg>',
+  set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v13H4zM8 7V4h8v3"/></svg>',
+  ser:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h12"/></svg>',
+  hp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  era:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4m8-4v4"/></svg>',
+  ill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 20 4-1L19 8l-3-3L5 16zM14 7l3 3"/></svg>',
+  img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>',
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>',
+  car:'<svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>'
+};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+
+// ---------- data ----------
+let DB;
+try{
+  const resp=await fetch('omnibinder.db.wasm?v='+BUILD,{cache:'force-cache'});if(!resp.ok)throw new Error('data file missing ('+resp.status+')');
+  const bar=document.querySelector('.loading .bar i');const total=+resp.headers.get('content-length')||1100000;let got=0;const chunks=[];const rd=resp.body.getReader();
+  while(true){const {done,value}=await rd.read();if(done)break;chunks.push(value);got+=value.length;if(bar){bar.style.animation='none';bar.style.width=Math.min(100,Math.round(got/total*100))+'%';}}
+  const txt=await new Response(new Blob(chunks).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  DB=JSON.parse(txt);
+}catch(e){$('#results').innerHTML='<div class="empty"><b>Could not open the card database</b><br>'+esc(e.message)+'</div>';return;}
+const {rar:RAR,cat:CAT,stage:STAGE,typ:TYP,ill:ILL,ser:SER,vt:VT,vst:VST,vstamp:VSTAMP,vfoil:VFOIL,sets:SETS,cards:CARDS}=DB;
+SETS.forEach((s,i)=>{s.idx=i;s.cards=[];});
+CARDS.forEach((c,i)=>{c.i=i;c.sid=(SETS[c[0]].r==='asia'?'a:':'')+SETS[c[0]].i+'-'+c[1];SETS[c[0]].cards.push(i);c.langs=Object.keys(c[2]);c.search=norm(Object.values(c[2]).join(' '))+' '+c[1].replace(/^0+/,'')+' '+c[1]+' '+norm(ILL[c[10]]||'');});
+SETS.forEach(s=>{s.search=norm(Object.values(s.n).join(' ')+' '+(s.a||'')+' '+s.i+' '+(SER[s.s]||''));s.langs=new Set();s.cards.forEach(i=>CARDS[i].langs.forEach(l=>s.langs.add(l)));});
+// ---- printings: one entry per physical print variant ----
+const P_C=[],P_V=[];
+CARDS.forEach((c,i)=>{c.p0=P_C.length;c[11].forEach((v,vi)=>{P_C.push(i);P_V.push(vi);});});
+const NP=P_C.length;
+const hum=t=>t?t.replace(/-/g,' ').replace(/^./,x=>x.toUpperCase()):'';
+const FIN={normal:'Normal',holo:'Holo',reverse:'Reverse Holo',metal:'Metal',lenticular:'Lenticular'};
+const PROPER={'1st-edition':'1st Edition','pre-release':'Prerelease','set-logo':'Expansion Stamp','w-promo':'W Promo','staff':'Staff','winner':'Winner','pokemon-center':'Pokémon Center','pokemon-center-ny':'Pokémon Center NY','player-rewards-program':'Player Rewards Program','professor-program':'Professor Program','snowflake':'Holiday Calendar','countdown-calendar':'Countdown Calendar','trick-or-trade':'Trick or Trade','25th-celebration':'25th Anniversary','30th-anniversary':'30th Anniversary','10th-anniversary':'10th Anniversary','30th-pokeday':'30th Pokémon Day','judge':'Judge','ace-trainer':'Ace Trainer','champion':'Champion','finalist':'Finalist','quarter-finalist':'Quarter-Finalist','semi-finalist':'Semi-Finalist','top-sixteen':'Top 16','top-thirty-two':'Top 32','top-eight':'Top 8','1st-place':'1st Place','2nd-place':'2nd Place','3rd-place':'3rd Place','4th-place':'4th Place','mcdonalds':"McDonald's",'gamestop':'GameStop','eb-games':'EB Games','toys-r-us':'Toys "R" Us','comic-con':'Comic-Con','gen-con':'Gen Con','origins':'Origins','origins-2008':'Origins 2008','pokemon-day':'Pokémon Day','illustration-contest-2022':'Illustration Contest 2022','illustration-contest-2024':'Illustration Contest 2024','poke-ball-league':'Poké Ball League','great-ball-league':'Great Ball League','ultra-ball-league':'Ultra Ball League','master-ball-league':'Master Ball League','asia-promo':'Asia Promo','asia-2023-24':'Asia 2023–24','rain-city':'NBA Rain City Showcase','fossil-museum':'Fossil Museum','horizons':'Pokémon Horizons','pokemon-together':'Pokémon Together','thank-you':'Pokémon League (Thank You)','jr-stamp-rally':'JR Stamp Rally','wotc':'Wizards of the Coast','pikachu':'Pikachu Stamp','pikachu-tail':'Pikachu Tail','bulbasaur':'Bulbasaur Stamp','charmander':'Charmander Stamp','squirtle':'Squirtle Stamp','pokeball':'Poké Ball Stamp','distributor-meeting':'Distributor Meeting','platinum':'Platinum','regional-championships':'Regional Championships','national-championships':'National Championships','city-championships':'City Championships','state-championships':'State Championships','gym-challenge':'Gym Challenge','stadium-challenge':'Stadium Challenge','international-championship-europe':'Europe International Championships','international-championship-latin-america':'Latin America International Championships','international-championship-north-america':'North America International Championships','worlds-2004':'World Championships 2004','worlds-2005':'World Championships 2005','worlds-2007':'World Championships 2007','worlds-2008':'World Championships 2008','worlds-2009':'World Championships 2009','worlds-2010':'World Championships 2010','worlds-2022':'World Championships 2022','worlds-2023':'World Championships 2023','worlds-2024':'World Championships 2024','worlds-2025':'World Championships 2025','1st-movie':'1st Movie','1st-movie-inverted':'1st Movie (Inverted)','pokemon-4-ever':'Pokémon 4Ever','destiny-deoxys':'Destiny Deoxys','poketour-99':'PokéTour 1999','pokemon-rocks-america':'Pokémon Rocks America','kraze-club':'Kraze Club','scrye':'Scrye','inquest-gamer':'InQuest Gamer','wizard-world-chicago':'Wizard World Chicago','wizard-world-philadelphia':'Wizard World Philadelphia','nintendo-world':'Nintendo World','games-expo':'Games Expo','pop-tournament':'POP Tournament','grey-star':'Grey Star','d-edition-error':'D Edition Error','1st-edition-error':'1st Edition Error','1st-edition-scratch-error':'1st Edition Scratch Error','chicago-2009':'Chicago 2009','tournament-collection':'Tournament Collection',
+ 'unlimited':'Unlimited','shadowless':'Shadowless','shadowless-red-cheek':'Shadowless (Red Cheeks)','1999-2000-copyright':'1999–2000 Copyright','1999-copyright':'1999 Copyright','1995-1998-copyright':'1995–1998 Copyright','2019-copyright':'2019 Copyright','2020-copyright':'2020 Copyright','no-rarity':'No Rarity','no-e-reader':'No e-Reader Logo','missing-expansion-symbol':'Missing Expansion Symbol','blue-border':'Blue Border','gold-border':'Gold Border','glossy':'Glossy','japanese-back':'Japanese Back','peelable-ditto':'Peelable Ditto','cosmos':'Cosmos Holo','aoki-error':'Aoki Error','no-holo-error':'No Holo Error','phanphy-error':'Phanpy Error','rarity-error':'Rarity Error','d-ink-dot-error':'D Ink Dot Error','missing-hp':'Missing HP','evolution-box-error':'Evolution Box Error','text-error':'Text Error','energy-symbol-error':'Energy Symbol Error','shifted-energy-cost':'Shifted Energy Cost','missing-retreat-cost':'Missing Retreat Cost','nintedo-error':'Nintedo Error',
+ 'pokeball-foil':'Poké Ball Holo','greatball':'Great Ball Holo','ultraball':'Ultra Ball Holo','masterball':'Master Ball Holo','gold':'Gold Holo','galaxy':'Galaxy Holo','starlight':'Starlight Holo','energy':'Energy Holo','cracked-ice':'Cracked Ice Holo','mirror':'Mirror Holo','league':'League Holo','player-reward':'Player Rewards Holo','tinsel':'Tinsel Holo','loveball':'Love Ball Holo','friendball':'Friend Ball Holo','quickball':'Quick Ball Holo','team-rocket':'Team Rocket Holo','duskball':'Dusk Ball Holo','rainbow':'Rainbow Holo','glitter':'Glitter Holo'};
+const titleCase=s=>s.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+const proper=k=>PROPER[k]||titleCase(k);
+const foilName=k=>k==='pokeball'?'Poké Ball Holo':k==='cosmos'?'Cosmos Holo':(PROPER[k]||titleCase(k)+' Holo');
+function vkey(v){return [VT[v[0]],v[1]>=0?VST[v[1]]:'',v[2].map(x=>VSTAMP[x]).join('+'),v[3]>=0?VFOIL[v[3]]:'',v[4]?'jumbo':''].join('|');}
+function vlabel(v){const fin=VT[v[0]];const parts=[];v[2].forEach(x=>parts.push(proper(VSTAMP[x])));if(v[1]>=0)parts.push(proper(VST[v[1]]));if(v[3]>=0)parts.push(foilName(VFOIL[v[3]]));if(fin!=='normal'||!parts.length)parts.unshift(FIN[fin]||titleCase(fin));if(v[4])parts.push('Jumbo');return parts.join(' · ');}
+const STAMPGLYPH=[['1st-edition','1st','1st Edition'],['pre-release','PRE','Prerelease'],['staff','STAFF','Staff'],['set-logo','◈','Set stamp'],['w-promo','W','W promo'],['winner','★','Winner'],['snowflake','❄','Holiday calendar'],['countdown-calendar','❄','Countdown calendar'],['trick-or-trade','🎃','Trick or Trade'],['pokemon-center','◉','Pokémon Center'],['player-rewards-program','PR','Player Rewards'],['professor-program','Prof','Professor Program'],['worlds-','🏆','Worlds'],['international-championship','🏆','Internationals'],['regional-championships','🏅','Regionals'],['national-championships','🏅','Nationals'],['city-championships','🏅','City Champs'],['state-championships','🏅','State Champs'],['gym-challenge','🏅','Gym Challenge'],['stadium-challenge','🏅','Stadium Challenge'],['25th-celebration','25','25th'],['30th-anniversary','30','30th'],['10th-anniversary','10','10th'],['judge','⚖','Judge'],['ace-trainer','ACE','Ace Trainer'],['champion','👑','Champion'],['finalist','2','Finalist'],['mcdonalds','M','McDonald\'s'],['gamestop','GS','GameStop'],['eb-games','EB','EB Games'],['toys-r-us','TRU','Toys R Us'],['comic-con','CC','Comic-Con'],['gen-con','GC','Gen Con'],['origins','OR','Origins'],['pokemon-day','PD','Pokémon Day'],['illustration-contest','🎨','Illustration Contest'],['-ball-league','⚪','League'],['asia-promo','ASIA','Asia promo'],['rain-city','NBA','Rain City'],['fossil-museum','🦴','Fossil Museum'],['horizons','HZ','Horizons'],['pokemon-together','PT','Together'],['thank-you','TY','Thank you'],['jr-stamp-rally','JR','Stamp Rally'],['wotc','W','WotC'],['pikachu','⚡','Pikachu stamp'],['bulbasaur','🌱','Bulbasaur'],['charmander','🔥','Charmander'],['squirtle','💧','Squirtle'],['pokeball','◓','Poké Ball'],['distributor-meeting','DM','Distributor'],['platinum','Pt','Platinum']];
+function stampInfo(s){for(const [k,g,l] of STAMPGLYPH)if(s.includes(k))return {g,l};if(/^[a-z]+-[a-z-]+$/.test(s)&&!/\d/.test(s))return {g:'✍',l:hum(s)};return {g:'◈',l:hum(s)};}
+function vshort(v){return vlabel(v);}
+function vicon(v){const fin=VT[v[0]];if(v[2].length)return '◈';if(fin==='reverse')return 'R<sup>+</sup>';if(fin==='holo')return '✦';if(fin==='metal')return '▣';if(fin==='lenticular')return '◐';return 'N';}
+function stampBadge(v){if(!v[2].length)return '';const s=VSTAMP[v[2][0]];const {g,l}=stampInfo(s);return `<span class="stamp" title="${esc(l)}">${esc(g)}</span>`;}
+CARDS.forEach(c=>{c.vs=c[11].map(v=>norm(vlabel(v)+' '+vshort(v)+' '+v[2].map(x=>VSTAMP[x]).join(' ')));});
+$('#dbcount').textContent=NP.toLocaleString()+' printings · '+CARDS.length.toLocaleString()+' cards';
+
+const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const LSset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+// ---------- filter state ----------
+const F=Object.assign({unit:'print',lang:'en',cols:3,split:'set',sort:'new',state:'all',vars:[],type:[],reg:[],rar:[],notes:'all',cat:[],stage:[],set:[],ser:[],hpmin:'',hpmax:'',yearmin:'',yearmax:'',ill:[],img:true},LS('omni.filters')||{});
+if(!LANGSET.has(F.lang))F.lang='en';
+let Q='',PHOTO=null; // PHOTO = {ids:[...], read:{...}}
+
+// ---------- collection (owned/notes) ----------
+let COLL=LS('omni.coll')||{}; // cardId -> {o:{vkey:1}, n:note}
+let dbColl=null;
+const saveLocal=()=>{LSset('omni.coll',COLL);stamp();};
+function stamp(){LSset('omni.saved',Date.now());cloudPushSoon();const el=document.getElementById('savedat');if(el)el.textContent=savedText();}
+function savedText(){const t=LS('omni.saved');return t?'Saved in this browser · last change '+new Date(t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'Saved in this browser';}
+const BYSID=new Map();CARDS.forEach(c=>BYSID.set(c.sid,c));
+function normEntry(e){
+  if(!e)return null;
+  if(typeof e.o==='number'){const m=e.o;const o={};const c=BYSID.get(e.sid);if(c&&m){c[11].forEach(v=>{const t=VT[v[0]];if((m&1&&t==='normal')||(m&2&&t==='holo')||(m&4&&t==='reverse')||(m&8&&t==='metal')||(m&16&&t==='lenticular'))o[vkey(v)]=1;});}return {o,n:e.n||''};}
+  return {o:e.o&&typeof e.o==='object'?e.o:{},n:e.n||''};
+}
+for(const [id,e] of Object.entries(COLL)){if(e)e.sid=id;COLL[id]=normEntry(e);}
+const ownedCount=e=>e&&e.o?Object.keys(e.o).length:0;
+function setEntry(id,o,n){
+  o=o||{};n=(n||'').trim();
+  if(!Object.keys(o).length&&!n){delete COLL[id];saveLocal();dbColl&&dbColl.doc(id).delete().catch(()=>{});}
+  else{COLL[id]={o,n};saveLocal();dbColl&&dbColl.doc(id).set({o,n}).catch(()=>{});}
+  updateOwnPill();
+}
+function updateOwnPill(){let n=0;for(const e of Object.values(COLL))n+=ownedCount(e);$('#ownpill').textContent=n.toLocaleString()+' owned';}
+const pOwned=p=>{const c=CARDS[P_C[p]],e=COLL[c.sid];return !!(e&&e.o&&e.o[vkey(c[11][P_V[p]])]);};
+const cOwned=c=>ownedCount(COLL[c.sid])>0;
+updateOwnPill();
+(async()=>{
+  try{
+    const db=await claude.use('db');const user=await claude.use('user');
+    if(!db||!user)return;
+    const uid=await user.id();dbColl=db.collection('data/users/'+uid+'/binder/prints');
+    const snap=await dbColl.get();
+    let changed=false;
+    snap.docs.forEach(d=>{const v=d.data();if(v){v.sid=d.id;COLL[d.id]=normEntry(v);changed=true;}});
+    // push anything that only lived in this browser
+    for(const [id,e] of Object.entries(COLL)){if(!snap.docs.some(d=>d.id===id))dbColl.doc(id).set({o:e.o,n:e.n||''}).catch(()=>{});}
+    if(changed){saveLocal();updateOwnPill();render();}
+  }catch(e){}
+})();
+
+// ---------- collection folders ----------
+// FOLDERS: id -> {n:name, p:parentId|'' , c:[printKey...], t:created}
+let FOLDERS=LS('omni.folders')||{};
+let dbFold=null;let VIEW='binder',CUR='',PICK=null;
+const saveFolders=()=>{LSset('omni.folders',FOLDERS);stamp();};
+const newId=()=>'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pkeyOf=p=>{const c=CARDS[P_C[p]];return c.sid+'|'+vkey(c[11][P_V[p]]);};
+const PK=new Map();for(let p=0;p<NP;p++)PK.set(pkeyOf(p),p);
+function putFolder(id,f){FOLDERS[id]=f;saveFolders();dbFold&&dbFold.doc(id).set({n:f.n,p:f.p,c:f.c,t:f.t}).catch(()=>{});updateCollCount();}
+function dropFolder(id){for(const k in FOLDERS)if(FOLDERS[k].p===id)dropFolder(k);delete FOLDERS[id];saveFolders();dbFold&&dbFold.doc(id).delete().catch(()=>{});updateCollCount();}
+const kids=id=>Object.entries(FOLDERS).filter(([k,f])=>f.p===id).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([k])=>k);
+function countDeep(id){const f=FOLDERS[id];let n=f?f.c.length:0;for(const k of kids(id))n+=countDeep(k);return n;}
+function pathOf(id){const out=[];while(id&&FOLDERS[id]){out.unshift(id);id=FOLDERS[id].p;}return out;}
+const inFolders=pk=>Object.entries(FOLDERS).filter(([k,f])=>f.c.includes(pk)).map(([k])=>k);
+function updateCollCount(){const all=new Set();for(const f of Object.values(FOLDERS))f.c.forEach(x=>all.add(x));$('#collcount').textContent=all.size?all.size.toLocaleString():'';}
+updateCollCount();
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1400);}
+(async()=>{
+  try{
+    const db=await claude.use('db');const user=await claude.use('user');
+    if(!db||!user)return;
+    const uid=await user.id();dbFold=db.collection('data/users/'+uid+'/binder/folders');
+    const snap=await dbFold.get();let changed=false;
+    snap.docs.forEach(d=>{const v=d.data();if(v&&typeof v.n==='string'){FOLDERS[d.id]={n:v.n,p:v.p||'',c:Array.isArray(v.c)?v.c:[],t:v.t||0};changed=true;}});
+    for(const [id,f] of Object.entries(FOLDERS)){if(!snap.docs.some(d=>d.id===id))dbFold.doc(id).set({n:f.n,p:f.p,c:f.c,t:f.t}).catch(()=>{});}
+    if(changed){saveFolders();updateCollCount();if(VIEW==='coll')renderColl();}
+  }catch(e){}
+})();
+
+// ---------- helpers ----------
+const L=()=>F.lang;
+const vok=v=>!v[5]||v[5].includes(L());
+const cname=c=>c[2][L()]||c[2].en||Object.values(c[2])[0]||'';
+const sname=s=>s.n[L()]||s.n.en||s.n.ja||Object.values(s.n)[0]||s.i;
+const sdate=s=>typeof s.d==='string'?s.d:(s.d?(s.d[L()]||Object.values(s.d).sort()[0]||''):'');
+const sdateAny=s=>typeof s.d==='string'?s.d:(s.d?Object.values(s.d).sort()[0]||'':'');
+const rarName=c=>c[4]>=0?RAR[c[4]]:'';
+const typeNames=c=>c[6].map(t=>TYP[t]);
+const typeColor=c=>{const t=typeNames(c)[0];if(t)return 'var(--t-'+t+')';return c[3]===1?'var(--t-Trainer)':c[3]===2?'var(--t-Energy)':'var(--t-Colorless)';};
+const imgLang=(c,s)=>{const sc=c[15]||[];if(!sc.length)return null;if(sc.includes(L()))return L();if(sc.includes('en'))return 'en';return sc[0];};
+const JPIMG='https://www.pokemon-card.com/assets/images/card_images/large/';
+const PIMG='https://images.pokemontcg.io/';
+const BACKS=new Map();
+window.checkBack=function(img){const url=img.src;if(BACKS.has(url)){if(BACKS.get(url))img.remove();return;}
+  const probe=new Image();probe.crossOrigin='anonymous';probe.onload=()=>{let back=false;try{const cv=document.createElement('canvas');cv.width=8;cv.height=8;const x=cv.getContext('2d');x.drawImage(probe,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let blue=0;for(let i=0;i<d.length;i+=4){if(d[i+2]>d[i]+40&&d[i+2]>d[i+1]+10)blue++;}back=blue>=28;}catch(e){back=false;}
+    BACKS.set(url,back);if(back)document.querySelectorAll('img.img[src="'+url+'"]').forEach(el=>el.remove());};probe.onerror=()=>BACKS.set(url,false);probe.src=url;};
+const OXIMG={'zh-tw':'https://asia.pokemon-card.com/','th':'https://asia.pokemon-card.com/','id':'https://asia.pokemon-card.com/','ko':'https://pokemoncard.co.kr/public-assets/home/data/cards.image_www/data/wmimages/'};
+const oxUrl=(c,lg)=>{const o=c[17]||{};const k=o[lg]?lg:Object.keys(o)[0];return k?OXIMG[k]+o[k]:'';};
+const imgUrl=(c,s)=>{if(c[19])return c[19];if(c[13])return PIMG+c[13];const o=c[17]||{};if(o[L()])return OXIMG[L()]+o[L()];const lg=imgLang(c,s);if(lg)return 'https://assets.tcgdex.net/'+lg+'/'+(s.si||'')+'/'+s.i+'/'+c[1]+'/low.webp';if(L()==='ja'&&c[16])return JPIMG+c[16];const ox=oxUrl(c,L());if(ox)return ox;if(c[16])return JPIMG+c[16];if(c[14])return PIMG+c[14];if(c[18])return TPIMG+c[18]+'_in_1000x1000.jpg';return '';};
+const TPIMG='https://tcgplayer-cdn.tcgplayer.com/product/';
+const imgAlts=(c,s)=>{const out=[];const lg=imgLang(c,s);if(lg&&c[16])out.push(JPIMG+c[16]);if((lg||c[16])&&c[14])out.push(PIMG+c[14]);if((lg||c[16]||c[14])&&c[18])out.push(TPIMG+c[18]+'_in_1000x1000.jpg');return out;};
+const apiUrl=(c,s)=>'https://api.tcgdex.net/v2/'+(imgLang(c,s)||(c.langs.includes(L())?L():c.langs[0]))+'/cards/'+s.i+'-'+c[1];
+const pcUrl=(c,s)=>'https://www.pricecharting.com/search-products?type=prices&q='+encodeURIComponent('pokemon '+(s.n.en||sname(s))+' '+(c[2].en||cname(c))+' '+c[1].replace(/^0+(?=\d)/,''));
+const tcgdexUrl=(c,s)=>'https://www.tcgdex.net/database/'+(s.si||'')+'/'+s.i+'/'+c[1];
+const RARSHORT=r=>r.replace('Illustration','Illus.').replace('Special illustration','Spec. illus.').replace('Rare Holo','Holo R.').replace(' Rare','');
+
+// ---------- filtering ----------
+function matches(c){
+  const s=SETS[c[0]];
+  if(PHOTO)return true;
+  if(!c[2][F.lang])return false;
+  if(Q){const parts=Q.split(' ');for(const p of parts){if(!(c.search.includes(p)||s.search.includes(p)||c.vs.some(x=>x.includes(p))))return false;}}
+  const e=COLL[c.sid];
+  if(F.notes==='with'&&!(e&&e.n))return false;
+  if(F.notes==='without'&&(e&&e.n))return false;
+  if(F.type.length&&!c[6].some(t=>F.type.includes(t)))return false;
+  if(F.reg.length&&!F.reg.includes(c[8]||'—'))return false;
+  if(F.rar.length&&!F.rar.includes(c[4]))return false;
+  if(F.cat.length&&!F.cat.includes(c[3]))return false;
+  if(F.stage.length&&!F.stage.includes(c[7]))return false;
+  if(F.set.length&&!F.set.includes(c[0]))return false;
+  if(F.ser.length&&!F.ser.includes(s.s))return false;
+  if(F.ill.length&&!F.ill.includes(c[10]))return false;
+  if(F.hpmin!==''&&c[5]<+F.hpmin)return false;
+  if(F.hpmax!==''&&(c[5]>+F.hpmax||!c[5]))return false;
+  if(F.yearmin!==''||F.yearmax!==''){const y=+(sdate(s).slice(0,4)||0);if(F.yearmin!==''&&y<+F.yearmin)return false;if(F.yearmax!==''&&y>+F.yearmax)return false;}
+  return true;
+}
+function vmatch(c,vi){
+  const v=c[11][vi];const s=SETS[c[0]];
+  if(!vok(v))return false;
+  if(Q){for(const p of Q.split(' ')){if(!(c.search.includes(p)||s.search.includes(p))&&!c.vs[vi].includes(p))return false;}}
+  if(F.vars.length){const toks=new Set(['t:'+VT[v[0]],...(v[1]>=0?['st:'+VST[v[1]]]:[]),...v[2].map(x=>'s:'+VSTAMP[x]),...(v[3]>=0?['f:'+VFOIL[v[3]]]:[]),...(v[4]?['sz:jumbo']:[])]);if(!F.vars.some(t=>toks.has(t)))return false;}
+  if(F.state!=='all'){const e=COLL[c.sid];const own=!!(e&&e.o&&e.o[vkey(v)]);if(F.state==='owned'&&!own)return false;if(F.state==='missing'&&own)return false;}
+  return true;
+}
+const numKey=n=>{const m=n.match(/^(\D*)(\d+)(.*)$/);return m?[m[1],+m[2],m[3]]:['',0,n];};
+function sortCards(ids){
+  const cmpNum=(a,b)=>{const x=numKey(CARDS[P_C[a]][1]),y=numKey(CARDS[P_C[b]][1]);return x[0].localeCompare(y[0])||x[1]-y[1]||x[2].localeCompare(y[2])||P_V[a]-P_V[b];};
+  const d=i=>sdate(SETS[CARDS[P_C[i]][0]]);const CARD=P_C;
+  if(F.sort==='new')ids.sort((a,b)=>(d(b)||'').localeCompare(d(a)||'')||SETS[CARDS[CARD[a]][0]].i.localeCompare(SETS[CARDS[CARD[b]][0]].i)||cmpNum(a,b));
+  else if(F.sort==='old')ids.sort((a,b)=>(d(a)||'').localeCompare(d(b)||'')||cmpNum(a,b));
+  else if(F.sort==='name')ids.sort((a,b)=>cname(CARDS[CARD[a]]).localeCompare(cname(CARDS[CARD[b]]),F.lang)||cmpNum(a,b));
+  else if(F.sort==='num')ids.sort(cmpNum);
+  else if(F.sort==='rar')ids.sort((a,b)=>(CARDS[CARD[b]][4])-(CARDS[CARD[a]][4])||cmpNum(a,b));
+  else if(F.sort==='hp')ids.sort((a,b)=>(CARDS[CARD[b]][5])-(CARDS[CARD[a]][5])||cmpNum(a,b));
+  else if(F.sort==='dex')ids.sort((a,b)=>((CARDS[CARD[a]][9]||9999)-(CARDS[CARD[b]][9]||9999))||cmpNum(a,b));
+  return ids;
+}
+let RESULT=[],GROUPS=[],shown=0;const PAGE=48;
+function compute(){
+  Q=norm($('#q').value);
+  let ids=[];
+  const emit=i=>{const c=CARDS[i];let any=false;for(let vi=0;vi<c[11].length;vi++){if(PHOTO?vok(c[11][vi]):vmatch(c,vi)){if(F.unit==='card'){if(!any)ids.push(c.p0+vi);any=true;}else ids.push(c.p0+vi);}}};
+  if(PHOTO){PHOTO.ids.forEach(emit);}
+  else{for(let i=0;i<CARDS.length;i++)if(matches(CARDS[i]))emit(i);sortCards(ids);}
+  RESULT=ids;GROUPS=[];
+  if(PHOTO||F.split==='none'){GROUPS=[{key:'',ids}];}
+  else{const m=new Map();for(const i of ids){const s=SETS[CARDS[P_C[i]][0]];const k=F.split==='set'?s.idx:'s'+s.s;if(!m.has(k))m.set(k,{key:k,set:F.split==='set'?s:null,ser:SER[s.s],ids:[]});m.get(k).ids.push(i);}GROUPS=[...m.values()];}
+}
+// ---------- rendering ----------
+function tile(p){
+  const i=P_C[p],vi=P_V[p];const c=CARDS[i],s=SETS[c[0]],e=COLL[c.sid];const col=typeColor(c);const t2=typeNames(c)[1];
+  const rar=rarName(c);const v=c[11][vi];const own=F.unit==='card'?cOwned(c):pOwned(p);const nv=c[11].length;
+  const vl=F.unit==='card'?(nv>1?nv+' printings':vlabel(v)):vlabel(v);
+  const fx='',st='';
+  const pill=F.unit==='print'?`<span class="vpill"><span class="vi">${vicon(v)}</span>${esc(vshort(v))}</span>`:(nv>1?`<span class="vpill"><span class="vi">${ICON.var}</span>${nv} printings</span>`:'');
+  return `<button class="card${own?' owned':''}${fx}" data-i="${p}" data-c="${i}" style="--c1:${col};--c2:${t2?'var(--t-'+t2+')':col}" aria-label="${esc(cname(c))} ${esc(c[1])}">
+    ${F.img&&imgUrl(c,s)?`<img class="img" loading="lazy" alt="" src="${imgUrl(c,s)}" data-alts="${esc(imgAlts(c,s).join('|'))}" onerror="const a=(this.dataset.alts||'').split('|').filter(Boolean);if(a.length){this.src=a.shift();this.dataset.alts=a.join('|');this.dataset.fb=this.src.includes('pokemontcg.io')?'1':''}else this.remove()" onload="if(this.dataset.fb)checkBack(this)">`:''}
+    <div class="band"><span class="noscan">No scan yet</span></div>${pill}
+    ${c[8]?`<span class="mark">${esc(c[8])}</span>`:''}
+    <span class="num">${esc(c[1])}${s.c?'/'+s.c:''}</span>
+    <div class="body"><div class="nm">${esc(cname(c))}${c[12]?' <span style="font-weight:400;color:var(--fg2)">'+esc(c[12])+'</span>':''}</div>
+      <div class="rar">${esc(RARSHORT(rar))}</div>
+      <div class="vl">${esc(vl)}</div>
+      <div class="sub">${c[5]?`<span class="hp">${c[5]} HP</span>`:''}<span>${esc(s.a||s.i.toUpperCase())}</span></div>
+      <div class="pr" data-p="${i}">${priceText(i)}</div></div>
+    <span class="vd">${c[11].slice(0,8).map(x=>`<i class="${VT[x[0]]==='holo'?'h':VT[x[0]]==='reverse'?'r':'n'}${F.unit==='print'&&x===v?' cur':''}"></i>`).join('')}</span>
+    ${(()=>{const nf=inFolders(pkeyOf(p)).length;if(PICK&&FOLDERS[PICK]&&FOLDERS[PICK].c.includes(pkeyOf(p)))return '<span class="inf">✓</span>';return own?'<span class="own">✓</span>':(nf?`<span class="inf" title="in ${nf} folder${nf>1?'s':''}">${nf}</span>`:'');})()}
+    ${e&&e.n?`<svg class="note" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h14a2 2 0 0 1 2 2v10l-6 6H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm9 16v-4h4z"/></svg>`:''}
+  </button>`;
+}
+function render(){
+  compute();shown=0;const R=$('#results');R.innerHTML='';
+  renderStatus();
+  if(!RESULT.length){R.innerHTML=`<div class="empty"><b>No cards match.</b><br>${F.lang!=='en'&&!PHOTO?'Not every set was printed in '+LANGS.find(l=>l[0]===F.lang)[2]+' — try International, or loosen a filter.':'Try fewer filters or a shorter search.'}</div>`;return;}
+  if(PHOTO){R.insertAdjacentHTML('beforeend',`<div class="matchbar"><span>📷</span><div><b>${RESULT.length} photo match${RESULT.length===1?'':'es'}</b><br><small style="color:var(--fg2)">${esc(PHOTO.summary)}</small></div><button id="photoclear">Clear</button></div>`);}
+  renderMore();
+}
+function renderMore(){
+  const R=$('#results');let budget=PAGE;let idx=0;let count=0;
+  // walk groups, emitting cards from `shown` onwards
+  for(const g of GROUPS){
+    const start=Math.max(0,shown-count);
+    if(start<g.ids.length){
+      let grid=document.getElementById('g'+g.key);
+      if(!grid){
+        const owned=g.ids.filter(i=>F.unit==='card'?cOwned(CARDS[P_C[i]]):pOwned(i)).length;
+        const head=g.key===''?'':`<div class="ghead"><h2>${esc(g.set?sname(g.set):g.ser||'Other')}</h2><span class="meta">${g.set?esc((g.set.a?g.set.a+' · ':'')+(sdate(g.set)||'')):''}</span><span class="own"><b>${owned}</b>/${g.ids.length}</span></div>`;
+        R.insertAdjacentHTML('beforeend',`<section class="group">${head}<div class="grid" id="g${g.key}" style="--cols:${F.cols}"></div></section>`);
+        grid=document.getElementById('g'+g.key);
+      }
+      const slice=g.ids.slice(start,start+budget);
+      grid.insertAdjacentHTML('beforeend',slice.map(tile).join(''));
+      budget-=slice.length;shown+=slice.length;
+      if(!budget)break;
+    }
+    count+=g.ids.length;
+  }
+  const old=$('#more');old&&old.remove();
+  if(shown<RESULT.length){R.insertAdjacentHTML('beforeend',`<button class="more" id="more">Show more · ${(RESULT.length-shown).toLocaleString()} left</button>`);
+    const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){io.disconnect();renderMore();}},{rootMargin:'600px'});io.observe($('#more'));}
+}
+function renderStatus(){
+  const act=[];
+  if(F.state!=='all')act.push(F.state);if(F.vars.length)act.push('variants');if(F.type.length)act.push('type');if(F.reg.length)act.push('reg. mark');if(F.rar.length)act.push('rarity');
+  if(F.notes!=='all')act.push('notes');if(F.cat.length)act.push('category');if(F.stage.length)act.push('stage');if(F.set.length)act.push('set');if(F.ser.length)act.push('series');if(F.ill.length)act.push('illustrator');
+  if(F.hpmin!==''||F.hpmax!=='')act.push('HP');if(F.yearmin!==''||F.yearmax!=='')act.push('era');
+  const owned=RESULT.filter(i=>F.unit==='card'?cOwned(CARDS[P_C[i]]):pOwned(i)).length;
+  $('#status').innerHTML=`<span><b>${RESULT.length.toLocaleString()}</b> ${F.unit==='card'?'cards':'printings'} · <b>${owned.toLocaleString()}</b> owned${act.length?' · filtered by '+act.join(', '):''}</span><span class="flex"></span>${act.length||Q?'<button class="reset" id="reset">Clear filters</button>':''}`;
+}
+// ---------- rail ----------
+function val(k){
+  const n=a=>a.length?a.length===1?null:a.length+' selected':null;
+  switch(k){
+    case 'lang':{const l=LANGS.find(x=>x[0]===F.lang);return l[1]+' '+l[2];}
+    case 'cols':return F.cols+' across';
+    case 'split':return {none:'No split',set:'By set',ser:'By series'}[F.split];
+    case 'sort':return {new:'New → old',old:'Old → new',name:'Name A–Z',num:'Number',rar:'Rarity',hp:'HP',dex:'Pokédex #'}[F.sort];
+    case 'state':return {all:'Any',owned:'Owned',missing:'Missing'}[F.state];
+    case 'unit':return F.unit==='card'?'Cards':'Printings';
+    case 'vars':return n(F.vars)||(F.vars.length?vtokLabel(F.vars[0]):'');
+    case 'type':return n(F.type)||(F.type.length?TYP[F.type[0]]:'');
+    case 'reg':return n(F.reg)||(F.reg.length?F.reg[0]:'');
+    case 'rar':return n(F.rar)||(F.rar.length?RAR[F.rar[0]]:'');
+    case 'notes':return {all:'',with:'Has note',without:'No note'}[F.notes];
+    case 'cat':return n(F.cat)||(F.cat.length?CAT[F.cat[0]]:'');
+    case 'stage':return n(F.stage)||(F.stage.length?STAGE[F.stage[0]]:'');
+    case 'set':return n(F.set)||(F.set.length?sname(SETS[F.set[0]]):'');
+    case 'ser':return n(F.ser)||(F.ser.length?SER[F.ser[0]]:'');
+    case 'ill':return n(F.ill)||(F.ill.length?ILL[F.ill[0]]:'');
+    case 'hp':return F.hpmin!==''||F.hpmax!==''?(F.hpmin||'0')+'–'+(F.hpmax||'∞'):'';
+    case 'era':return F.yearmin!==''||F.yearmax!==''?(F.yearmin||'…')+'–'+(F.yearmax||'…'):'';
+    case 'img':return F.img?'On':'Off';
+  }
+}
+const RAIL=[['lang','International',ICON.lang],['unit','Catalog',ICON.var],['cols','Grid',ICON.grid],['split','Split',ICON.split],['sort','Sort',ICON.sort],['state','State',ICON.state],['vars','Variants',ICON.var],['type','Type',ICON.type],['reg','Regulation Mark',ICON.reg],['rar','Rarity',ICON.rar],['notes','Notes',ICON.notes],['cat','Category',ICON.cat],['stage','Stage',ICON.stage],['set','Set',ICON.set],['ser','Series',ICON.ser],['hp','HP',ICON.hp],['era','Era',ICON.era],['ill','Illustrator',ICON.ill],['img','Images',ICON.img]];
+const isOn=k=>({unit:false,lang:F.lang!=='en',cols:false,split:false,sort:false,state:F.state!=='all',vars:F.vars.length,type:F.type.length,reg:F.reg.length,rar:F.rar.length,notes:F.notes!=='all',cat:F.cat.length,stage:F.stage.length,set:F.set.length,ser:F.ser.length,hp:F.hpmin!==''||F.hpmax!=='',era:F.yearmin!==''||F.yearmax!=='',ill:F.ill.length,img:false}[k]);
+function vtokLabel(t){const [k,v]=t.split(':');return k==='t'?(FIN[v]||titleCase(v)):k==='f'?foilName(v):k==='sz'?'Jumbo':proper(v);}
+function renderRail(){
+  $('#rail').innerHTML=RAIL.map(([k,label,ic])=>{const v=val(k);const lbl=k==='lang'?(LANGS.find(x=>x[0]===F.lang)[0]==='en'?'International':v):label;return `<button class="chip${isOn(k)?' on':''}" data-k="${k}">${k==='lang'?'':ic}<span>${esc(lbl)}</span>${k!=='lang'&&v?`<span class="v">${esc(v)}</span>`:''}${ICON.car}</button>`;}).join('');
+}
+// ---------- sheets ----------
+const sheet=$('#sheet'),scrim=$('#scrim');
+function openSheet(html){sheet.innerHTML='<div class="grab"></div>'+html;sheet.hidden=false;scrim.hidden=false;requestAnimationFrame(()=>{sheet.classList.add('show');scrim.classList.add('show');});}
+function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');setTimeout(()=>{sheet.hidden=true;scrim.hidden=true;sheet.innerHTML='';},220);}
+scrim.addEventListener('click',closeSheet);
+function persist(){LSset('omni.filters',F);renderRail();render();}
+
+function countBy(fn){const m=new Map();for(const c of CARDS){if(!c[2][F.lang])continue;const k=fn(c);if(k==null)continue;if(Array.isArray(k))k.forEach(x=>m.set(x,(m.get(x)||0)+1));else m.set(k,(m.get(k)||0)+1);}return m;}
+function optionSheet(title,hint,opts,selected,multi,onPick,extra){
+  // opts: [{v,label,n,color}]
+  const sel=new Set(selected.map(String));
+  const list=()=>opts.filter(o=>!filterTxt||norm(o.label).includes(filterTxt)).map(o=>`<button class="opt${sel.has(String(o.v))?' on':''}" data-v="${esc(o.v)}">${o.color?`<span class="sw" style="--c:${o.color}"></span>`:''}<span class="lbl">${esc(o.label)}</span>${o.n!=null?`<span class="n">${o.n.toLocaleString()}</span>`:''}<span class="tick">${sel.has(String(o.v))?'✓':''}</span></button>`).join('');
+  let filterTxt='';
+  openSheet(`<h3>${esc(title)}</h3><p class="hint">${esc(hint)}</p>${opts.length>12?'<input class="find" id="optfind" placeholder="Find…">':''}<div class="opts" id="opts">${list()}</div>${extra||''}${multi?'<div class="row"><button class="btn" id="optclear">Clear</button><button class="btn pri" id="optdone">Done</button></div>':''}`);
+  const box=$('#opts');
+  box.addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;const v=b.dataset.v;
+    if(!multi){onPick([v]);closeSheet();return;}
+    sel.has(v)?sel.delete(v):sel.add(v);b.classList.toggle('on');b.querySelector('.tick').textContent=sel.has(v)?'✓':'';});
+  const fnd=$('#optfind');fnd&&fnd.addEventListener('input',()=>{filterTxt=norm(fnd.value);box.innerHTML=list();});
+  if(multi){$('#optclear').onclick=()=>{onPick([]);closeSheet();};$('#optdone').onclick=()=>{onPick([...sel]);closeSheet();};}
+}
+function openFilter(k){
+  const C=countBy;
+  switch(k){
+    case 'lang':{const m=new Map();for(const c of CARDS)c.langs.forEach(l=>m.set(l,(m.get(l)||0)+1));
+      return optionSheet('Language','Shows cards as printed in that language, with their printed names.',LANGS.map(l=>({v:l[0],label:l[1]+'  '+l[2],n:m.get(l[0])||0})),[F.lang],false,v=>{F.lang=v[0];persist();});}
+    case 'unit':return optionSheet('Catalog unit','Printings lists every physical variant (1st edition, shadowless, reverse, stamps, foils, misprints) as its own entry. Cards collapses them to one per card number.',[{v:'print',label:'Printings — every unique print',n:NP},{v:'card',label:'Cards — one per card number',n:CARDS.length}],[F.unit],false,v=>{F.unit=v[0];persist();});
+    case 'cols':return optionSheet('Grid','How many cards across.',[2,3,4,5].map(n=>({v:n,label:n+' across'})),[F.cols],false,v=>{F.cols=+v[0];persist();});
+    case 'split':return optionSheet('Split','Group the results.',[{v:'set',label:'By set'},{v:'ser',label:'By series'},{v:'none',label:'No split'}],[F.split],false,v=>{F.split=v[0];persist();});
+    case 'sort':return optionSheet('Sort','Order within each group.',[['new','Release date, new → old'],['old','Release date, old → new'],['num','Card number'],['name','Name A–Z'],['rar','Rarity, highest first'],['hp','HP, highest first'],['dex','Pokédex number']].map(([v,l])=>({v,label:l})),[F.sort],false,v=>{F.sort=v[0];persist();});
+    case 'state':return optionSheet('State','Owned means at least one variant is ticked.',[{v:'all',label:'Any'},{v:'owned',label:'Owned'},{v:'missing',label:'Missing'}],[F.state],false,v=>{F.state=v[0];persist();});
+    case 'vars':{const m=new Map();for(const c of CARDS){if(!c[2][F.lang])continue;for(const v of c[11]){if(!vok(v))continue;const add=t=>m.set(t,(m.get(t)||0)+1);add('t:'+VT[v[0]]);if(v[1]>=0)add('st:'+VST[v[1]]);v[2].forEach(x=>add('s:'+VSTAMP[x]));if(v[3]>=0)add('f:'+VFOIL[v[3]]);if(v[4])add('sz:jumbo');}}
+      const grp={t:'Finish',st:'Edition / misprint',s:'Stamp',f:'Foil',sz:'Size'};const ord={t:0,st:1,f:2,sz:3,s:4};
+      const opts=[...m.entries()].map(([t,n])=>({v:t,label:grp[t.split(':')[0]]+' › '+vtokLabel(t),n,o:ord[t.split(':')[0]]})).sort((a,b)=>a.o-b.o||b.n-a.n);
+      return optionSheet('Variants','Any printing with one of these features: finish, edition, misprint, stamp, foil pattern or size. Use Find to jump.',opts,F.vars,true,v=>{F.vars=v;persist();});}
+    case 'type':{const m=C(c=>c[6]);return optionSheet('Type','Energy type of the Pokémon.',TYP.map((t,i)=>({v:i,label:t,n:m.get(i)||0,color:'var(--t-'+t+')'})).sort((a,b)=>b.n-a.n),F.type,true,v=>{F.type=v.map(Number);persist();});}
+    case 'reg':{const m=C(c=>c[8]||'—');const ks=[...m.keys()].sort();return optionSheet('Regulation Mark','The letter in the bottom-left corner (2019 onward). — means none printed.',ks.map(r=>({v:r,label:r==='—'?'— No mark':r,n:m.get(r)})),F.reg,true,v=>{F.reg=v;persist();});}
+    case 'rar':{const m=C(c=>c[4]>=0?c[4]:null);return optionSheet('Rarity','As listed for the printed card.',RAR.map((r,i)=>({v:i,label:r,n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.rar,true,v=>{F.rar=v.map(Number);persist();});}
+    case 'notes':return optionSheet('Notes','Your own notes on a card (condition, price paid, where it is).',[{v:'all',label:'Any'},{v:'with',label:'Has a note'},{v:'without',label:'No note yet'}],[F.notes],false,v=>{F.notes=v[0];persist();});
+    case 'cat':{const m=C(c=>c[3]);return optionSheet('Category','Pokémon, Trainer or Energy.',CAT.map((t,i)=>({v:i,label:t,n:m.get(i)||0})),F.cat,true,v=>{F.cat=v.map(Number);persist();});}
+    case 'stage':{const m=C(c=>c[7]>=0?c[7]:null);return optionSheet('Stage','Evolution stage or mechanic.',STAGE.map((t,i)=>({v:i,label:t,n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.stage,true,v=>{F.stage=v.map(Number);persist();});}
+    case 'set':{const m=C(c=>c[0]);const opts=SETS.filter(s=>m.get(s.idx)).sort((a,b)=>(sdate(b)||'').localeCompare(sdate(a)||'')).map(s=>({v:s.idx,label:sname(s)+(s.a?' · '+s.a:'')+(sdate(s)?' · '+sdate(s).slice(0,4):''),n:m.get(s.idx)}));return optionSheet('Set','Newest first.',opts,F.set,true,v=>{F.set=v.map(Number);persist();});}
+    case 'ser':{const m=C(c=>SETS[c[0]].s);return optionSheet('Series','The era a set belongs to.',SER.map((t,i)=>({v:i,label:t||'Other',n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.ser,true,v=>{F.ser=v.map(Number);persist();});}
+    case 'ill':{const m=C(c=>c[10]>=0?c[10]:null);return optionSheet('Illustrator','Artist credited on the card.',ILL.map((t,i)=>({v:i,label:t,n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.ill,true,v=>{F.ill=v.map(Number);persist();});}
+    case 'hp':return openSheet(`<h3>HP</h3><p class="hint">Leave a side blank for no limit.</p><div class="range"><input id="hpmin" inputmode="numeric" placeholder="Min" value="${esc(F.hpmin)}"><span>to</span><input id="hpmax" inputmode="numeric" placeholder="Max" value="${esc(F.hpmax)}"></div><div class="row"><button class="btn" onclick="void 0" id="rclear">Clear</button><button class="btn pri" id="rdone">Apply</button></div>`),
+      $('#rclear').onclick=()=>{F.hpmin='';F.hpmax='';persist();closeSheet();},$('#rdone').onclick=()=>{F.hpmin=$('#hpmin').value.trim();F.hpmax=$('#hpmax').value.trim();persist();closeSheet();};
+    case 'era':return openSheet(`<h3>Era</h3><p class="hint">Release year range, from 1996 to today.</p><div class="range"><input id="ymin" inputmode="numeric" placeholder="From" value="${esc(F.yearmin)}"><span>to</span><input id="ymax" inputmode="numeric" placeholder="To" value="${esc(F.yearmax)}"></div><div class="row"><button class="btn" id="rclear">Clear</button><button class="btn pri" id="rdone">Apply</button></div>`),
+      $('#rclear').onclick=()=>{F.yearmin='';F.yearmax='';persist();closeSheet();},$('#rdone').onclick=()=>{F.yearmin=$('#ymin').value.trim();F.yearmax=$('#ymax').value.trim();persist();closeSheet();};
+    case 'img':return optionSheet('Card images','Real scans load when this page is opened outside the Claude viewer (which blocks outside images). Inside it, the designed tiles stand in.',[{v:'1',label:'Try to load scans'},{v:'0',label:'Tiles only (faster)'}],[F.img?'1':'0'],false,v=>{F.img=v[0]==='1';persist();});
+  }
+}
+// ---------- detail ----------
+function openCard(p){
+  const i=P_C[p],cur=P_V[p];const c=CARDS[i],s=SETS[c[0]],e=COLL[c.sid]||{o:{},n:''};
+  const names=LANGS.filter(l=>c[2][l[0]]).map(l=>`<span><b>${l[1]}</b>${esc(c[2][l[0]])}</span>`).join('');
+  openSheet(`<div class="det"><div>${tile(p).replace('<button','<div').replace(/<\/button>$/,'</div>')}</div>
+    <div><h3>${esc(cname(c))}${c[12]?' '+esc(c[12]):''}</h3>
+    <dl class="kv">
+      <dt>Set</dt><dd>${esc(sname(s))}${s.a?' <span style="color:var(--fg2)">'+esc(s.a)+'</span>':''}</dd>
+      <dt>Number</dt><dd class="num">${esc(c[1])}${s.c?' / '+s.c:''}</dd>
+      <dt>Series</dt><dd>${esc(SER[s.s]||'—')}</dd>
+      <dt>Released</dt><dd class="num">${esc(sdate(s)||'—')}</dd>
+      <dt>Rarity</dt><dd>${esc(rarName(c)||'—')}</dd>
+      <dt>Category</dt><dd>${esc(CAT[c[3]])}${c[7]>=0?' · '+esc(STAGE[c[7]]):''}</dd>
+      ${c[6].length?`<dt>Type</dt><dd>${typeNames(c).map(t=>`<span class="tag" style="background:var(--t-${t});color:#111">${t}</span>`).join('')}</dd>`:''}
+      ${c[5]?`<dt>HP</dt><dd class="num">${c[5]}</dd>`:''}
+      ${c[8]?`<dt>Reg. mark</dt><dd class="num">${esc(c[8])}</dd>`:''}
+      ${c[9]?`<dt>Pokédex</dt><dd class="num">#${String(c[9]).padStart(4,'0')}</dd>`:''}
+      ${c[10]>=0?`<dt>Illustrator</dt><dd>${esc(ILL[c[10]])}</dd>`:''}
+      <dt>Price</dt><dd id="detprice">${priceText(i)}</dd>
+      <dt></dt><dd><a class="ext" target="_blank" rel="noopener" href="${pcUrl(c,s)}">PriceCharting ↗</a> &nbsp; <a class="ext" target="_blank" rel="noopener" href="${tcgdexUrl(c,s)}">TCGdex ↗</a></dd>
+    </dl></div></div>
+    <div class="names">${names}</div>
+    <div class="vars"><h4>Printings · ${c[11].length} · tick the ones you own</h4>${c[11].map((v,vi)=>{if(!vok(v))return '';const k=vkey(v);const on=!!(e.o&&e.o[k]);return `<button class="vt${on?' on':''}${vi===cur?' cur':''}" data-k="${esc(k)}" role="switch" aria-checked="${on}"><span>${esc(vlabel(v))}</span><span class="sw2"></span></button>`;}).join('')}</div>
+    <div class="notes"><h4>Notes</h4><textarea id="note" placeholder="Condition, price paid, where it lives…">${esc(e.n)}</textarea><div class="saved" id="saved"></div></div>
+    <div class="vars" id="infold"><h4>Folders</h4>${folderChips(p)}</div>
+    <div class="row"><button class="btn pri" id="addfold">Add to folder…</button>${VIEW==='coll'&&CUR&&FOLDERS[CUR]&&FOLDERS[CUR].c.includes(pkeyOf(p))?'<button class="btn" id="rmfold">Remove from this folder</button>':''}</div>`);
+  $('#addfold').onclick=()=>openFolderPicker(p);
+  const rm=$('#rmfold');if(rm)rm.onclick=()=>{const f=FOLDERS[CUR];f.c=f.c.filter(x=>x!==pkeyOf(p));putFolder(CUR,f);closeSheet();renderColl();toast('Removed from '+f.n);};
+  loadPrice(i).then(()=>{const d=$('#detprice');if(d)d.innerHTML=priceText(i);});
+  let o=Object.assign({},e.o||{});
+  sheet.querySelectorAll('.vt').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(o[k])delete o[k];else o[k]=1;b.classList.toggle('on');b.setAttribute('aria-checked',!!o[k]);setEntry(c.sid,o,$('#note').value);refreshTile(i);});
+  let t;$('#note').addEventListener('input',()=>{clearTimeout(t);$('#saved').textContent='…';t=setTimeout(()=>{setEntry(c.sid,o,$('#note').value);$('#saved').textContent='Saved';refreshTile(i);},500);});
+}
+function folderChips(p){const ids=inFolders(pkeyOf(p));if(!ids.length)return '<p class="hint" style="margin:0">Not in any folder yet.</p>';return '<div class="names">'+ids.map(id=>`<span>${esc(pathOf(id).map(x=>FOLDERS[x].n).join(' / '))}</span>`).join('')+'</div>';}
+function openFolderPicker(p){
+  const pk=pkeyOf(p);let sel=CUR&&FOLDERS[CUR]?CUR:(kids('')[0]||'');
+  const open=new Set(pathOf(sel));
+  const tree=()=>{const rows=[];const walk=(id,d)=>{for(const k of kids(id)){const f=FOLDERS[k];const has=f.c.includes(pk);rows.push(`<button class="tn${k===sel?' on':''}" data-id="${k}" style="padding-left:${10+d*18}px">${ICON.folder}<span>${esc(f.n)}</span>${has?'<span class="n">added</span>':`<span class="n">${countDeep(k)}</span>`}</button>`);if(open.has(k)||true)walk(k,d+1);}};walk('',0);return rows.join('')||'<p class="hint">No folders yet — make one below.</p>';};
+  openSheet(`<h3>Add to folder</h3><p class="hint">Pick a folder, or create one.</p><div class="tree" id="ftree">${tree()}</div>
+    <div class="row"><input class="fld" id="newfname" placeholder="New folder name"><button class="btn" id="mkfold" style="flex:0 0 auto">Create</button></div>
+    <div class="row"><button class="btn pri" id="pickdone">Add here</button></div>`);
+  $('#ftree').addEventListener('click',e=>{const b=e.target.closest('.tn');if(!b)return;sel=b.dataset.id;$('#ftree').innerHTML=tree();});
+  $('#mkfold').onclick=()=>{const n=$('#newfname').value.trim();if(!n)return;const id=newId();putFolder(id,{n,p:sel||'',c:[],t:Date.now()});sel=id;$('#newfname').value='';$('#ftree').innerHTML=tree();};
+  $('#pickdone').onclick=()=>{if(!sel||!FOLDERS[sel]){toast('Pick a folder first');return;}const f=FOLDERS[sel];if(!f.c.includes(pk)){f.c.push(pk);putFolder(sel,f);}closeSheet();toast('Added to '+f.n);refreshTile(P_C[p]);if(VIEW==='coll')renderColl();};
+}
+function refreshTile(i){document.querySelectorAll(`.card[data-c="${i}"]`).forEach(el=>{el.outerHTML=tile(+el.dataset.i);});renderStatus();}
+
+// ---------- photo search ----------
+$('#cambtn').onclick=()=>$('#camfile').click();
+$('#camfile').addEventListener('change',async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  const url=URL.createObjectURL(file);
+  openSheet(`<h3>Photo search</h3><div class="photo"><img src="${url}" alt="Your photo"><div class="read" id="read"><p>Reading the card…</p><div class="bar" style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:10px"><i style="display:block;height:100%;width:40%;background:var(--accent);animation:slide 1s infinite ease-in-out"></i></div></div></div>`);
+  const out=$('#read');
+  let sample=null;try{sample=await claude.use('sample');}catch(err){}
+  if(!sample){out.innerHTML='<p><b>Photo search needs the Claude viewer.</b></p><p class="pre">Open this page from its claude.ai link and allow it to ask Claude. Until then, type the name and number (e.g. "ditto 132") into the search box.</p>';return;}
+  let lim=null;try{lim=await sample.limits();}catch(err){}
+  if(!lim||!lim.images){out.innerHTML='<p><b>Image sending isn\'t allowed for this page yet.</b></p><p class="pre">Check the page\'s Permissions menu, then try again.</p>';return;}
+  // downscale so uploads stay small
+  const blob=await shrink(file,1400);
+  const langList=LANGS.map(l=>l[0]).join(', ');
+  const prompt=`You are reading a photo or screenshot of a Pokémon trading card (it may be any language, any era, possibly cropped or at an angle; there may be more than one card — use the largest or most central one).
+Reply with ONLY a JSON object with these keys:
+"name": the card's name exactly as printed (keep the printed language and script),
+"nameEnglish": the English name of that Pokémon or card if you know it, else null,
+"language": the printed language as one of [${langList}] (use "en" for English), else null,
+"number": the collector number as printed, as a string without the total (e.g. "132" from "132/191", "SV065", "TG12", "025"), else null,
+"total": the set total printed after the slash as a number, else null,
+"setCode": the set abbreviation printed near the number if any (e.g. "SSP", "OBF", "SV8", "s12a"), else null,
+"hp": the HP as a number, else null,
+"regulationMark": the single regulation letter printed in the bottom-left (A–J), else null,
+"rarity": any rarity you can tell, else null,
+"notes": one short sentence on anything that identifies the printing (holo, promo stamp, era).`;
+  let r;
+  try{r=await sample.json(prompt,{images:[blob],modelTier:'default'});}
+  catch(err){out.innerHTML=`<p><b>Couldn't read the card.</b></p><p class="pre">${esc(err.message||err.code||'Try a clearer, closer photo.')}</p>`;return;}
+  if(typeof r!=='object'||!r){out.innerHTML='<p><b>Nothing recognisable in that photo.</b></p>';return;}
+  const tags=[r.name,r.nameEnglish&&r.nameEnglish!==r.name?r.nameEnglish:null,r.number?'#'+r.number+(r.total?'/'+r.total:''):null,r.setCode,r.language,r.hp?r.hp+' HP':null,r.regulationMark?'Mark '+r.regulationMark:null].filter(Boolean);
+  const ids=matchPhoto(r);
+  out.innerHTML=`<p><b>I read:</b></p><p>${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</p>${r.notes?`<p class="pre">${esc(r.notes)}</p>`:''}<p>${ids.length?`<b>${ids.length}</b> likely match${ids.length===1?'':'es'} in the binder.`:'No card with that name and number — try the name in the search box.'}</p><div class="row">${ids.length?'<button class="btn pri" id="showm">Show matches</button>':''}<button class="btn" id="usename">Search the name instead</button></div>`;
+  $('#showm')&&($('#showm').onclick=()=>{PHOTO={ids,summary:tags.join(' · ')};$('#q').value='';render();closeSheet();window.scrollTo({top:0});});
+  $('#usename').onclick=()=>{PHOTO=null;$('#q').value=(r.nameEnglish||r.name||'')+(r.number?' '+r.number.replace(/^0+/,''):'');$('#qclear').hidden=false;render();closeSheet();};
+});
+function matchPhoto(r){
+  const nameKeys=[r.name,r.nameEnglish].filter(Boolean).map(norm).filter(Boolean);
+  const num=r.number?String(r.number).trim().toUpperCase().replace(/^0+(?=\d)/,''):'';
+  const total=r.total?+r.total:0;const code=r.setCode?norm(r.setCode):'';
+  const scored=[];
+  for(const c of CARDS){
+    let sc=0;const cn=c[1].toUpperCase().replace(/^0+(?=\d)/,'');
+    const names=Object.values(c[2]).map(norm);
+    const nameHit=nameKeys.some(k=>names.some(n=>n===k))?3:nameKeys.some(k=>names.some(n=>n.includes(k)||k.includes(n)))?1.5:0;
+    if(!nameHit&&!num)continue;
+    if(num&&cn===num)sc+=3;else if(num&&nameHit===0)continue;
+    sc+=nameHit;
+    const s=SETS[c[0]];
+    if(total&&s.c===total)sc+=2.5;
+    if(code&&(norm(s.a||'')===code||norm(s.i)===code))sc+=2;
+    if(r.hp&&c[5]===+r.hp)sc+=1;
+    if(r.regulationMark&&c[8]===String(r.regulationMark).toUpperCase())sc+=1;
+    if(r.language&&c[2][r.language])sc+=.5;
+    if(sc>=3)scored.push([sc,c.i]);
+  }
+  scored.sort((a,b)=>b[0]-a[0]);
+  const best=scored.length?scored[0][0]:0;
+  return scored.filter(x=>x[0]>=Math.max(3,best-3)).slice(0,60).map(x=>x[1]);
+}
+function shrink(file,max){return new Promise(res=>{const img=new Image();img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);cv.toBlob(b=>res(b||file),'image/jpeg',.88);};img.onerror=()=>res(file);img.src=URL.createObjectURL(file);});}
+
+// ---------- prices (live from TCGdex when the page can reach the internet) ----------
+const PRICES=new Map(); // i -> {v:number|null,src,cur} | 'pending'
+const fmt=(v,cur)=>v==null?'':new Intl.NumberFormat(undefined,{style:'currency',currency:cur||'USD',maximumFractionDigits:2}).format(v);
+function priceText(i){const p=PRICES.get(i);if(!p||p==='pending')return '<span class="dim">price…</span>';if(p.v==null)return '<span class="dim">no price</span>';return `<b>${fmt(p.v,p.cur)}</b><span class="dim"> ${p.src}</span>`;}
+function pickPrice(j){
+  const pr=j&&j.pricing;if(!pr)return {v:null};
+  const tp=pr.tcgplayer;if(tp){for(const k of ['normal','holofoil','reverse-holofoil','reverseHolofoil','1st-edition','unlimited']){const m=tp[k];if(m&&(m.marketPrice||m.market||m.midPrice))return {v:m.marketPrice||m.market||m.midPrice,src:'TCGplayer',cur:tp.unit||'USD'};}
+    for(const k in tp){const m=tp[k];if(m&&typeof m==='object'&&(m.marketPrice||m.market))return {v:m.marketPrice||m.market,src:'TCGplayer',cur:tp.unit||'USD'};}}
+  const cm=pr.cardmarket;if(cm){const v=cm.trend||cm.avg||cm.avg7||cm.avg30||cm.low;if(v)return {v,src:'Cardmarket',cur:cm.unit||'EUR'};}
+  return {v:null};
+}
+let netDead=false;
+async function loadPrice(i){
+  if(PRICES.has(i)||netDead)return;PRICES.set(i,'pending');
+  const c=CARDS[i],s=SETS[c[0]];
+  try{const r=await fetch(apiUrl(c,s));if(!r.ok)throw 0;const j=await r.json();PRICES.set(i,pickPrice(j));
+    if(j.image){const want=j.image+'/low.webp';document.querySelectorAll(`.card[data-c="${i}"]`).forEach(el=>{const im=el.querySelector('img.img');if(!im){const n=document.createElement('img');n.className='img';n.alt='';n.src=want;n.onerror=()=>n.remove();el.insertBefore(n,el.firstChild);}else if(im.src!==want&&!im.dataset.fb&&im.dataset.alt!==undefined){im.src=want;}});}}
+  catch(e){PRICES.set(i,{v:null});if(e instanceof TypeError){netDead=true;document.querySelectorAll('.pr').forEach(el=>el.innerHTML='<span class="dim">price: hosted site only</span>');return;}}
+  document.querySelectorAll(`.pr[data-p="${i}"]`).forEach(el=>el.innerHTML=priceText(i));
+}
+const priceIO=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){priceIO.unobserve(e.target);if(!netDead)loadPrice(+e.target.dataset.c);else e.target.querySelector('.pr').innerHTML='<span class="dim">price: hosted site only</span>';}}},{rootMargin:'300px'});
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType!==1)continue;if(n.matches&&n.matches('.card'))priceIO.observe(n);n.querySelectorAll&&n.querySelectorAll('.card').forEach(x=>priceIO.observe(x));}}).observe($('#results'),{childList:true,subtree:true});
+
+// ---------- cloud sync (Supabase) ----------
+const SB_URL='https://biqxjeqfhgataxfzmyqy.supabase.co';
+const SB_KEY='sb_publishable_J4Wdod8-wNpejptXqzSFQw_25xnjKo4';
+let SESSION=LS('omni.session')||null;let CLOUD='off';// off | syncing | ok | error
+const sbHeaders=()=>({apikey:SB_KEY,'Content-Type':'application/json',...(SESSION?{Authorization:'Bearer '+SESSION.access_token}:{})});
+function setSession(s){SESSION=s;LSset('omni.session',s);renderAcct();}
+function renderAcct(){const b=$('#acct');if(!b)return;if(SESSION&&SESSION.user){b.textContent=(SESSION.user.email||'Account').split('@')[0];b.classList.add('in');b.title='Signed in as '+SESSION.user.email;}else{b.textContent='Sign in';b.classList.remove('in');b.title='';}
+  const el=document.getElementById('savedat');if(el)el.textContent=syncText();}
+function syncText(){if(!SESSION)return savedText()+' · sign in to sync across devices';return {syncing:'Syncing…',ok:'Synced to your account · '+(SESSION.user.email||''),error:'Saved here · cloud sync failed, will retry',off:'Signed in · waiting to sync'}[CLOUD];}
+// 1. handle magic-link return (#access_token=…)
+(async()=>{
+  const err=location.hash.match(/error_description=([^&]+)/);
+  if(err){try{history.replaceState(null,'',location.pathname);}catch(e){}setTimeout(()=>{openSheet(`<h3>Sign-in link didn't work</h3><p class="hint">${esc(decodeURIComponent(err[1].replace(/\+/g,' ')))}. Links are single-use and expire after an hour — tap Sign in to get a fresh one.</p><div class="row"><button class="btn pri" id="ok2">OK</button></div>`);$('#ok2').onclick=closeSheet;},600);}
+  const m=location.hash.match(/access_token=([^&]+)/);
+  if(m){const q=new URLSearchParams(location.hash.slice(1));const s={access_token:q.get('access_token'),refresh_token:q.get('refresh_token'),expires_at:Date.now()+(+q.get('expires_in')||3600)*1000};
+    try{history.replaceState(null,'',location.pathname);}catch(e){}
+    try{const u=await (await fetch(SB_URL+'/auth/v1/user',{headers:{apikey:SB_KEY,Authorization:'Bearer '+s.access_token}})).json();s.user={id:u.id,email:u.email};setSession(s);toast('Signed in as '+u.email);}catch(e){}
+  }
+  if(SESSION)await cloudPull();
+  renderAcct();
+})();
+async function refreshSession(){if(!SESSION||!SESSION.refresh_token)return false;try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:SESSION.refresh_token})});if(!r.ok)throw 0;const j=await r.json();setSession({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in||3600)*1000,user:SESSION.user||{id:j.user?.id,email:j.user?.email}});return true;}catch(e){return false;}}
+async function ensureFresh(){if(!SESSION)return false;if(Date.now()>SESSION.expires_at-60000)return refreshSession();return true;}
+function mergeInto(coll,folders){
+  let changed=false;
+  for(const [id,e] of Object.entries(coll||{})){const ne=normEntry(Object.assign({sid:id},e));if(!ne)continue;const cur=COLL[id];if(!cur){COLL[id]=ne;changed=true;continue;}const o=Object.assign({},cur.o,ne.o);const n=cur.n||ne.n;if(JSON.stringify(o)!==JSON.stringify(cur.o)||n!==cur.n){COLL[id]={o,n};changed=true;}}
+  for(const [id,f] of Object.entries(folders||{})){if(!f||typeof f.n!=='string')continue;const cur=FOLDERS[id];if(!cur){FOLDERS[id]={n:f.n,p:f.p||'',c:Array.isArray(f.c)?f.c:[],t:f.t||Date.now()};changed=true;continue;}const c=[...new Set([...cur.c,...(f.c||[])])];if(c.length!==cur.c.length){cur.c=c;changed=true;}}
+  return changed;
+}
+async function cloudPull(){
+  if(!SESSION)return;CLOUD='syncing';renderAcct();
+  try{if(!await ensureFresh())throw new Error('session expired');
+    const r=await fetch(SB_URL+'/rest/v1/collections?select=coll,folders,updated_at',{headers:sbHeaders()});
+    if(r.status===401){setSession(null);CLOUD='off';renderAcct();toast('Signed out — sign in again');return;}
+    if(!r.ok)throw new Error('pull '+r.status);
+    const rows=await r.json();const row=rows[0];
+    const changed=row?mergeInto(row.coll,row.folders):false;
+    if(changed){LSset('omni.coll',COLL);LSset('omni.folders',FOLDERS);updateOwnPill();updateCollCount();if(VIEW==='coll')renderColl();else render();}
+    CLOUD='ok';renderAcct();
+    await cloudPush();
+  }catch(e){CLOUD='error';renderAcct();}
+}
+let pushT=null,pushing=false,pushAgain=false;
+function cloudPushSoon(){if(!SESSION)return;clearTimeout(pushT);pushT=setTimeout(cloudPush,1500);}
+async function cloudPush(){
+  if(!SESSION)return;if(pushing){pushAgain=true;return;}pushing=true;CLOUD='syncing';renderAcct();
+  try{if(!await ensureFresh())throw new Error('session expired');
+    const r=await fetch(SB_URL+'/rest/v1/collections',{method:'POST',headers:Object.assign(sbHeaders(),{Prefer:'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({user_id:SESSION.user.id,coll:COLL,folders:FOLDERS,updated_at:new Date().toISOString()})});
+    if(r.status===401){setSession(null);CLOUD='off';renderAcct();return;}
+    if(!r.ok)throw new Error('push '+r.status);
+    CLOUD='ok';}catch(e){CLOUD='error';}
+  pushing=false;renderAcct();if(pushAgain){pushAgain=false;cloudPush();}
+}
+async function sendMagicLink(email){
+  const redirect=location.origin+location.pathname;
+  const r=await fetch(SB_URL+'/auth/v1/otp?redirect_to='+encodeURIComponent(redirect),{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,create_user:true})});
+  if(!r.ok){let m='';try{m=(await r.json()).msg||(await r.json()).error_description||'';}catch(e){}throw new Error(m||('Could not send ('+r.status+')'));}
+}
+async function signOut(){try{await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:sbHeaders()});}catch(e){}setSession(null);CLOUD='off';renderAcct();toast('Signed out — your collection stays in this browser');}
+$('#acct').onclick=()=>{
+  if(SESSION&&SESSION.user){openSheet(`<h3>${esc(SESSION.user.email||'Account')}</h3><p class="hint">${esc(syncText())}</p><div class="row"><button class="btn" id="so">Sign out</button><button class="btn pri" id="sync-now">Sync now</button></div>`);$('#so').onclick=()=>{closeSheet();signOut();};$('#sync-now').onclick=()=>{closeSheet();cloudPull();};return;}
+  if(location.protocol==='file:'||/claude\.ai|claudeusercontent/.test(location.host)){openSheet(`<h3>Sign in</h3><p class="hint">Account sign-in works on the public site. Here, your collection already syncs to your Claude account.</p><div class="row"><button class="btn pri" id="ok1">OK</button></div>`);$('#ok1').onclick=closeSheet;return;}
+  openSheet(`<h3>Sign in</h3><p class="hint">Enter your email and we'll send a one-tap sign-in link. No password. Your collection then follows you to every device.</p><input class="fld" id="em" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"><div class="row"><button class="btn" id="em-cancel">Cancel</button><button class="btn pri" id="em-go">Send link</button></div><div class="saved" id="em-msg"></div>`);
+  $('#em-cancel').onclick=closeSheet;const go=async()=>{const em=$('#em').value.trim();if(!em.includes('@')){$('#em-msg').textContent='Enter a valid email.';return;}$('#em-go').disabled=true;$('#em-msg').textContent='Sending…';try{await sendMagicLink(em);$('#em-msg').textContent='';sheet.querySelector('.hint').textContent='Check '+em+' for a link from Omnibinder (Supabase). Tap it on this device and you\'re in. The link expires in an hour.';$('#em-go').textContent='Done';$('#em-go').disabled=false;$('#em-go').onclick=closeSheet;$('#em-cancel').hidden=true;}catch(e){$('#em-go').disabled=false;$('#em-msg').textContent=e.message;}};
+  $('#em-go').onclick=go;$('#em').addEventListener('keydown',e=>{if(e.key==='Enter')go();});$('#em').focus();
+};
+
+// ---------- collection view ----------
+function setView(v){VIEW=v;$('#tab-binder').classList.toggle('on',v==='binder');$('#tab-coll').classList.toggle('on',v==='coll');
+  $('#results').hidden=v!=='binder';$('#coll').hidden=v!=='coll';
+  ['.search','#rail','#status'].forEach(s=>{const el=$(s);if(el)el.hidden=v!=='binder';});
+  try{history.replaceState(null,'','#'+(v==='coll'?'collection':'binder'));}catch(e){}
+  if(v==='coll')renderColl();}
+function renderColl(){
+  const R=$('#coll');const f=CUR&&FOLDERS[CUR]?FOLDERS[CUR]:null;if(CUR&&!f)CUR='';
+  const path=pathOf(CUR);
+  const crumbs=`<nav class="crumbs"><button data-go="">All folders</button>${path.map(id=>`<span class="sep">›</span><button data-go="${id}" class="${id===CUR?'cur':''}">${esc(FOLDERS[id].n)}</button>`).join('')}</nav>`;
+  const tools=`<div class="ctools"><button class="tbtn" id="c-new">${ICON.plus}New folder</button>${f?`<button class="tbtn pri" id="c-add">${ICON.plus}Add cards</button><button class="tbtn" id="c-ren">Rename</button><button class="tbtn" id="c-del">Delete</button>`:''}</div>`;
+  const ks=kids(CUR);
+  const fold=ks.length?`<div class="folders">${ks.map(k=>`<button class="folder" data-open="${k}">${ICON.folder}<span style="min-width:0"><div class="fn">${esc(FOLDERS[k].n)}</div><div class="fc">${countDeep(k)} card${countDeep(k)===1?'':'s'}${kids(k).length?' · '+kids(k).length+' folder'+(kids(k).length===1?'':'s'):''}</div></span></button>`).join('')}</div>`:'';
+  let cards='';
+  if(f){const ps=f.c.map(k=>PK.get(k)).filter(p=>p!=null);
+    cards=ps.length?`<p class="sec">${ps.length} card${ps.length===1?'':'s'} in this folder</p><div class="grid" style="--cols:${F.cols}">${ps.map(tile).join('')}</div>`:(ks.length?'':`<div class="cempty"><b>${esc(f.n)} is empty.</b><br>Tap <b>Add cards</b> to pick from the binder, or make a folder inside it.</div>`);}
+  else if(!ks.length)cards=`<div class="cempty"><b>No folders yet.</b><br>Make one for a set you're chasing, a master set, or a trade binder. Folders can hold folders.</div>`;
+  const sync=dbColl?'Synced to your Claude account and saved in this browser.':syncText();
+  const backup=CUR?'':`<div class="savebar"><span id="savedat">${esc(sync)}</span><span class="flex"></span><button class="tbtn" id="bk-dl">Backup</button><button class="tbtn" id="bk-up">Restore</button><input type="file" id="bk-file" accept="application/json,.json" hidden></div>`;
+  R.innerHTML=crumbs+tools+fold+cards+backup;
+  if(!CUR){
+    $('#bk-dl').onclick=()=>{const data={app:'omnibinder',v:1,exported:new Date().toISOString(),coll:COLL,folders:FOLDERS};const txt=JSON.stringify(data);
+      const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(txt);a.download='omnibinder-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();
+      openSheet(`<h3>Backup</h3><p class="hint">A file named <b>${esc(a.download)}</b> should be downloading. If nothing happened (some viewers block downloads), copy the text instead and keep it somewhere safe.</p><textarea class="fld" id="bk-txt" style="min-height:90px;font-family:var(--font-num);font-size:11px" readonly>${esc(txt)}</textarea><div class="row"><button class="btn" id="bk-copy">Copy text</button><button class="btn pri" id="bk-ok">Done</button></div>`);
+      $('#bk-ok').onclick=closeSheet;$('#bk-copy').onclick=()=>{navigator.clipboard.writeText(txt).then(()=>toast('Copied'),()=>{$('#bk-txt').select();toast('Select all and copy');});};};
+    $('#bk-up').onclick=()=>{openSheet(`<h3>Restore</h3><p class="hint">Pick a backup file, or paste its text. Restoring merges into what's here (nothing is deleted).</p><div class="row"><button class="btn" id="bk-pick">Choose file</button></div><textarea class="fld" id="bk-paste" style="min-height:90px;margin-top:10px;font-family:var(--font-num);font-size:11px" placeholder="…or paste backup text here"></textarea><div class="row"><button class="btn" id="bk-cancel">Cancel</button><button class="btn pri" id="bk-apply">Restore</button></div>`);
+      $('#bk-cancel').onclick=closeSheet;$('#bk-pick').onclick=()=>$('#bk-file').click();
+      $('#bk-file').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(x=>{$('#bk-paste').value=x;toast('File loaded — tap Restore');});e.target.value='';};
+      $('#bk-apply').onclick=()=>{let d;try{d=JSON.parse($('#bk-paste').value);}catch(e){toast('That is not a backup file');return;}if(!d||d.app!=='omnibinder'){toast('That is not an Omnibinder backup');return;}
+        let n=0;for(const [id,e] of Object.entries(d.coll||{})){const ne=normEntry(Object.assign({sid:id},e));if(!ne)continue;const cur=COLL[id]||{o:{},n:''};const o=Object.assign({},cur.o,ne.o);const note=cur.n||ne.n;COLL[id]={o,n:note};n++;dbColl&&dbColl.doc(id).set({o,n:note}).catch(()=>{});}
+        let nf=0;for(const [id,f] of Object.entries(d.folders||{})){if(!f||typeof f.n!=='string')continue;const cur=FOLDERS[id];const merged=cur?{n:cur.n,p:cur.p,c:[...new Set([...cur.c,...(f.c||[])])],t:cur.t}:{n:f.n,p:f.p||'',c:Array.isArray(f.c)?f.c:[],t:f.t||Date.now()};FOLDERS[id]=merged;dbFold&&dbFold.doc(id).set(merged).catch(()=>{});nf++;}
+        saveLocal();saveFolders();updateOwnPill();updateCollCount();closeSheet();renderColl();cloudPushSoon();toast('Restored '+n+' cards, '+nf+' folders');};};
+  }
+  R.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{CUR=b.dataset.go;renderColl();});
+  R.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{CUR=b.dataset.open;renderColl();});
+  $('#c-new').onclick=()=>nameSheet('New folder',CUR?'Inside '+FOLDERS[CUR].n:'At the top level','',n=>{const id=newId();putFolder(id,{n,p:CUR,c:[],t:Date.now()});renderColl();});
+  if(f){
+    $('#c-add').onclick=()=>startPick(CUR);
+    $('#c-ren').onclick=()=>nameSheet('Rename folder','',f.n,n=>{f.n=n;putFolder(CUR,f);renderColl();});
+    $('#c-del').onclick=()=>{const n=countDeep(CUR),k=kids(CUR).length;openSheet(`<h3>Delete “${esc(f.n)}”?</h3><p class="hint">${n} card${n===1?'':'s'}${k?' and '+k+' subfolder'+(k===1?'':'s'):''} will be removed from your collection folders. Your owned ticks and notes stay.</p><div class="row"><button class="btn" id="dno">Keep it</button><button class="btn pri" id="dyes">Delete</button></div>`);$('#dno').onclick=closeSheet;$('#dyes').onclick=()=>{const p=f.p;dropFolder(CUR);CUR=p;closeSheet();renderColl();toast('Folder deleted');};};
+  }
+}
+function nameSheet(title,hint,val,cb){openSheet(`<h3>${esc(title)}</h3>${hint?`<p class="hint">${esc(hint)}</p>`:''}<input class="fld" id="fname" value="${esc(val)}" placeholder="Folder name"><div class="row"><button class="btn" id="fcancel">Cancel</button><button class="btn pri" id="fok">Save</button></div>`);
+  const inp=$('#fname');inp.focus();inp.select();const ok=()=>{const n=inp.value.trim();if(!n)return;closeSheet();cb(n);};$('#fok').onclick=ok;$('#fcancel').onclick=closeSheet;inp.addEventListener('keydown',e=>{if(e.key==='Enter')ok();});}
+function startPick(id){PICK=id;setView('binder');const bar=$('#pickbar');bar.hidden=false;bar.innerHTML=`<span>📂</span><span class="flex">Adding to <b>${esc(pathOf(id).map(x=>FOLDERS[x].n).join(' / '))}</b> — tap cards</span><button id="pickend">Done</button>`;$('#pickend').onclick=endPick;render();window.scrollTo({top:0});}
+function endPick(){const id=PICK;PICK=null;$('#pickbar').hidden=true;CUR=id;setView('coll');}
+$('#tab-binder').onclick=()=>{if(PICK)endPick();else setView('binder');};
+$('#tab-coll').onclick=()=>{if(PICK)endPick();else setView('coll');};
+
+// ---------- events ----------
+let qt;$('#q').addEventListener('input',()=>{$('#qclear').hidden=!$('#q').value;PHOTO=null;clearTimeout(qt);qt=setTimeout(render,180);});
+$('#qclear').onclick=()=>{$('#q').value='';$('#qclear').hidden=true;render();};
+$('#rail').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)openFilter(b.dataset.k);});
+$('#results').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b)return;const p=+b.dataset.i;
+  if(PICK&&FOLDERS[PICK]){const f=FOLDERS[PICK],pk=pkeyOf(p);const had=f.c.includes(pk);f.c=had?f.c.filter(x=>x!==pk):[...f.c,pk];putFolder(PICK,f);refreshTile(P_C[p]);toast((had?'Removed from ':'Added to ')+f.n+' · '+f.c.length);return;}
+  openCard(p);});
+$('#coll').addEventListener('click',e=>{const b=e.target.closest('.card');if(b)openCard(+b.dataset.i);});
+document.addEventListener('click',e=>{
+  if(e.target.id==='reset'){Object.assign(F,{state:'all',vars:[],type:[],reg:[],rar:[],notes:'all',cat:[],stage:[],set:[],ser:[],hpmin:'',hpmax:'',yearmin:'',yearmax:'',ill:[]});$('#q').value='';$('#qclear').hidden=true;PHOTO=null;persist();}
+  if(e.target.id==='photoclear'){PHOTO=null;render();}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet();});
+renderRail();render();if(location.hash==='#collection')setView('coll');document.getElementById('build').textContent=BUILD;
+})();
+</script>

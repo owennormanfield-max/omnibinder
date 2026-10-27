@@ -50,6 +50,7 @@ for c in C:
         if isinstance(v, str): v = {'t': v}
         stamps = sorted({normstamp(x) for x in (v.get('stamp') or [])})
         row = [idx(VT, v.get('t') or 'normal'), idx(VST, v.get('st')), [idx(VSTAMP, x) for x in stamps], idx(VFOIL, v.get('foil')), 1 if v.get('sz') == 'jumbo' else 0]
+        if v.get('langs'): row.append(sorted(v['langs']))
         if row not in vs: vs.append(row)
     if not vs: vs = [[idx(VT, 'normal'), -1, [], -1, 0]]
     nv += len(vs)
