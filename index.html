@@ -234,7 +234,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.0328";</script>
+<script>const BUILD="2026-10-27.0334";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -375,7 +375,8 @@ const rarName=c=>c[4]>=0?RAR[c[4]]:'';
 const typeNames=c=>c[6].map(t=>TYP[t]);
 const typeColor=c=>{const t=typeNames(c)[0];if(t)return 'var(--t-'+t+')';return c[3]===1?'var(--t-Trainer)':c[3]===2?'var(--t-Energy)':'var(--t-Colorless)';};
 const imgLang=(c,s)=>s.r==='asia'?(c.langs.includes(L())?L():c.langs[0]):(c.langs.includes(L())?L():'en');
-const imgUrl=(c,s,lc)=>c[13]?c[13]:'https://assets.tcgdex.net/'+imgLang(c,s)+'/'+(lc?(s.si||'').toLowerCase():(s.si||''))+'/'+(lc?s.i.toLowerCase():s.i)+'/'+c[1]+'/low.webp';
+const PIMG='https://images.pokemontcg.io/';
+const imgUrl=(c,s,lc)=>c[13]?PIMG+c[13]:'https://assets.tcgdex.net/'+imgLang(c,s)+'/'+(lc?(s.si||'').toLowerCase():(s.si||''))+'/'+(lc?s.i.toLowerCase():s.i)+'/'+c[1]+'/low.webp';
 const apiUrl=(c,s)=>'https://api.tcgdex.net/v2/'+imgLang(c,s)+'/cards/'+s.i+'-'+c[1];
 const pcUrl=(c,s)=>'https://www.pricecharting.com/search-products?type=prices&q='+encodeURIComponent('pokemon '+(s.n.en||sname(s))+' '+(c[2].en||cname(c))+' '+c[1].replace(/^0+(?=\d)/,''));
 const tcgdexUrl=(c,s)=>'https://www.tcgdex.net/database/'+(s.si||'')+'/'+s.i+'/'+c[1];
@@ -439,7 +440,7 @@ function tile(p){
   const rar=rarName(c);const v=c[11][vi];const own=F.unit==='card'?cOwned(c):pOwned(p);const nv=c[11].length;
   const vl=F.unit==='card'?(nv>1?nv+' printings':vlabel(v)):vlabel(v);
   return `<button class="card${own?' owned':''}" data-i="${p}" data-c="${i}" style="--c1:${col};--c2:${t2?'var(--t-'+t2+')':col}" aria-label="${esc(cname(c))} ${esc(c[1])}">
-    ${F.img?`<img class="img" loading="lazy" alt="" src="${imgUrl(c,s)}" data-alt="${imgUrl(c,s,true)}" onerror="if(this.dataset.alt){this.src=this.dataset.alt;delete this.dataset.alt}else this.remove()">`:''}
+    ${F.img?`<img class="img" loading="lazy" alt="" src="${imgUrl(c,s)}" data-alt="${imgUrl(c,s,true)}" data-alt2="${c[14]?PIMG+c[14]:''}" onerror="if(this.dataset.alt){this.src=this.dataset.alt;delete this.dataset.alt}else if(this.dataset.alt2){this.src=this.dataset.alt2;delete this.dataset.alt2}else this.remove()">`:''}
     <div class="band"></div>
     ${c[8]?`<span class="mark">${esc(c[8])}</span>`:''}
     <span class="num">${esc(c[1])}${s.c?'/'+s.c:''}</span>
