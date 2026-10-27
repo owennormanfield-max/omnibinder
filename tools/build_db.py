@@ -33,10 +33,16 @@ def tpid(c):
     for v in (c.get('vars') or []):
         if isinstance(v, dict) and v.get('tp'): return v['tp']
     return 0
-skipped=0
+EXCL=json.load(open(S_+'exclusions.json'))
+skipped=0;excluded=0
 for c in C:
     if c['set'] not in simap: continue
     if is_basic_energy(c): skipped+=1; continue
+    ex=EXCL.get(c['set']+'-'+c['num'])
+    if ex=='all': excluded+=1; continue
+    if isinstance(ex,list):
+        c=dict(c); c['name']={k:v for k,v in c['name'].items() if k not in ex}
+        if not c['name']: excluded+=1; continue
     r = c.get('rar'); r = None if r in (None, 'None') else r
     rg = c.get('reg'); rg = None if rg in (None, 'None') else rg.upper()
     vs = []
@@ -61,4 +67,4 @@ cards.sort(key=lambda c: (sdate(sets[c[0]]), c[1].zfill(4) if c[1].isdigit() els
 out = {'rar': rar, 'cat': cat, 'stage': stage, 'typ': typ, 'ill': ill, 'ser': ser, 'vt': VT, 'vst': VST, 'vstamp': VSTAMP, 'vfoil': VFOIL, 'sets': sets, 'cards': cards}
 rawb = json.dumps(out, separators=(',', ':'), ensure_ascii=False).encode()
 open(S_ + 'data/db.b64', 'w').write(base64.b64encode(gzip.compress(rawb, 9)).decode())
-print(len(cards), 'cards', len(sets), 'sets', nv, 'printings', len(rawb), 'bytes raw', skipped, 'basic energies excluded')
+print(len(cards), 'cards', len(sets), 'sets', nv, 'printings', len(rawb), 'bytes raw', skipped, 'basic energies excluded', excluded, 'language exclusions applied')

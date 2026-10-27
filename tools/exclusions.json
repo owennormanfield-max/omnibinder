@@ -1,0 +1,4 @@
+{
+  "_comment": "Cards that do not exist in the listed language (language-exclusive printings mislabeled by the source data). Key = set id + '-' + number; value = list of language codes to drop, or 'all' to drop the card entirely.",
+  "intl:mep-120": "all"
+}
