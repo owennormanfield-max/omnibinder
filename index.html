@@ -39,6 +39,8 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .brand h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
 .brand .count{font-family:var(--font-num);font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
 .brand .spacer{flex:1}
+.brand .acct{cursor:pointer;background:var(--accent);color:var(--accent-ink);font-weight:600}
+.brand .acct.in{background:var(--bg3);color:var(--fg)}
 .brand .pill{font-size:12px;color:var(--fg2);background:var(--bg3);border-radius:999px;padding:3px 9px}
 .search{display:flex;gap:8px;align-items:stretch}
 .search .field{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:0 14px;min-width:0}
@@ -210,6 +212,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
     <span class="count" id="dbcount">loading…</span>
     <span class="spacer"></span>
     <span class="pill" id="ownpill">0 owned</span>
+    <button class="pill acct" id="acct">Sign in</button>
   </div>
   <div class="tabs" role="tablist"><button class="tab on" id="tab-binder" role="tab">Binder</button><button class="tab" id="tab-coll" role="tab">Collection<span class="n" id="collcount"></span></button></div>
   <div class="pickbar" id="pickbar" hidden></div>
@@ -231,7 +234,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.0303";</script>
+<script>const BUILD="2026-10-27.0316";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -299,7 +302,7 @@ let Q='',PHOTO=null; // PHOTO = {ids:[...], read:{...}}
 let COLL=LS('omni.coll')||{}; // cardId -> {o:{vkey:1}, n:note}
 let dbColl=null;
 const saveLocal=()=>{LSset('omni.coll',COLL);stamp();};
-function stamp(){LSset('omni.saved',Date.now());const el=document.getElementById('savedat');if(el)el.textContent=savedText();}
+function stamp(){LSset('omni.saved',Date.now());cloudPushSoon();const el=document.getElementById('savedat');if(el)el.textContent=savedText();}
 function savedText(){const t=LS('omni.saved');return t?'Saved in this browser · last change '+new Date(t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'Saved in this browser';}
 const BYSID=new Map();CARDS.forEach(c=>BYSID.set(c.sid,c));
 function normEntry(e){
@@ -702,6 +705,71 @@ async function loadPrice(i){
 const priceIO=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){priceIO.unobserve(e.target);if(!netDead)loadPrice(+e.target.dataset.c);else e.target.querySelector('.pr').innerHTML='<span class="dim">price: hosted site only</span>';}}},{rootMargin:'300px'});
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType!==1)continue;if(n.matches&&n.matches('.card'))priceIO.observe(n);n.querySelectorAll&&n.querySelectorAll('.card').forEach(x=>priceIO.observe(x));}}).observe($('#results'),{childList:true,subtree:true});
 
+// ---------- cloud sync (Supabase) ----------
+const SB_URL='https://biqxjeqfhgataxfzmyqy.supabase.co';
+const SB_KEY='sb_publishable_J4Wdod8-wNpejptXqzSFQw_25xnjKo4';
+let SESSION=LS('omni.session')||null;let CLOUD='off';// off | syncing | ok | error
+const sbHeaders=()=>({apikey:SB_KEY,'Content-Type':'application/json',...(SESSION?{Authorization:'Bearer '+SESSION.access_token}:{})});
+function setSession(s){SESSION=s;LSset('omni.session',s);renderAcct();}
+function renderAcct(){const b=$('#acct');if(!b)return;if(SESSION&&SESSION.user){b.textContent=(SESSION.user.email||'Account').split('@')[0];b.classList.add('in');b.title='Signed in as '+SESSION.user.email;}else{b.textContent='Sign in';b.classList.remove('in');b.title='';}
+  const el=document.getElementById('savedat');if(el)el.textContent=syncText();}
+function syncText(){if(!SESSION)return savedText()+' · sign in to sync across devices';return {syncing:'Syncing…',ok:'Synced to your account · '+(SESSION.user.email||''),error:'Saved here · cloud sync failed, will retry',off:'Signed in · waiting to sync'}[CLOUD];}
+// 1. handle magic-link return (#access_token=…)
+(async()=>{
+  const m=location.hash.match(/access_token=([^&]+)/);
+  if(m){const q=new URLSearchParams(location.hash.slice(1));const s={access_token:q.get('access_token'),refresh_token:q.get('refresh_token'),expires_at:Date.now()+(+q.get('expires_in')||3600)*1000};
+    try{history.replaceState(null,'',location.pathname);}catch(e){}
+    try{const u=await (await fetch(SB_URL+'/auth/v1/user',{headers:{apikey:SB_KEY,Authorization:'Bearer '+s.access_token}})).json();s.user={id:u.id,email:u.email};setSession(s);toast('Signed in as '+u.email);}catch(e){}
+  }
+  if(SESSION)await cloudPull();
+  renderAcct();
+})();
+async function refreshSession(){if(!SESSION||!SESSION.refresh_token)return false;try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:SESSION.refresh_token})});if(!r.ok)throw 0;const j=await r.json();setSession({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in||3600)*1000,user:SESSION.user||{id:j.user?.id,email:j.user?.email}});return true;}catch(e){return false;}}
+async function ensureFresh(){if(!SESSION)return false;if(Date.now()>SESSION.expires_at-60000)return refreshSession();return true;}
+function mergeInto(coll,folders){
+  let changed=false;
+  for(const [id,e] of Object.entries(coll||{})){const ne=normEntry(Object.assign({sid:id},e));if(!ne)continue;const cur=COLL[id];if(!cur){COLL[id]=ne;changed=true;continue;}const o=Object.assign({},cur.o,ne.o);const n=cur.n||ne.n;if(JSON.stringify(o)!==JSON.stringify(cur.o)||n!==cur.n){COLL[id]={o,n};changed=true;}}
+  for(const [id,f] of Object.entries(folders||{})){if(!f||typeof f.n!=='string')continue;const cur=FOLDERS[id];if(!cur){FOLDERS[id]={n:f.n,p:f.p||'',c:Array.isArray(f.c)?f.c:[],t:f.t||Date.now()};changed=true;continue;}const c=[...new Set([...cur.c,...(f.c||[])])];if(c.length!==cur.c.length){cur.c=c;changed=true;}}
+  return changed;
+}
+async function cloudPull(){
+  if(!SESSION)return;CLOUD='syncing';renderAcct();
+  try{if(!await ensureFresh())throw new Error('session expired');
+    const r=await fetch(SB_URL+'/rest/v1/collections?select=coll,folders,updated_at',{headers:sbHeaders()});
+    if(r.status===401){setSession(null);CLOUD='off';renderAcct();toast('Signed out — sign in again');return;}
+    if(!r.ok)throw new Error('pull '+r.status);
+    const rows=await r.json();const row=rows[0];
+    const changed=row?mergeInto(row.coll,row.folders):false;
+    if(changed){LSset('omni.coll',COLL);LSset('omni.folders',FOLDERS);updateOwnPill();updateCollCount();if(VIEW==='coll')renderColl();else render();}
+    CLOUD='ok';renderAcct();
+    await cloudPush();
+  }catch(e){CLOUD='error';renderAcct();}
+}
+let pushT=null,pushing=false,pushAgain=false;
+function cloudPushSoon(){if(!SESSION)return;clearTimeout(pushT);pushT=setTimeout(cloudPush,1500);}
+async function cloudPush(){
+  if(!SESSION)return;if(pushing){pushAgain=true;return;}pushing=true;CLOUD='syncing';renderAcct();
+  try{if(!await ensureFresh())throw new Error('session expired');
+    const r=await fetch(SB_URL+'/rest/v1/collections',{method:'POST',headers:Object.assign(sbHeaders(),{Prefer:'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({user_id:SESSION.user.id,coll:COLL,folders:FOLDERS,updated_at:new Date().toISOString()})});
+    if(r.status===401){setSession(null);CLOUD='off';renderAcct();return;}
+    if(!r.ok)throw new Error('push '+r.status);
+    CLOUD='ok';}catch(e){CLOUD='error';}
+  pushing=false;renderAcct();if(pushAgain){pushAgain=false;cloudPush();}
+}
+async function sendMagicLink(email){
+  const redirect=location.origin+location.pathname;
+  const r=await fetch(SB_URL+'/auth/v1/otp',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,create_user:true,options:{email_redirect_to:redirect}})});
+  if(!r.ok){let m='';try{m=(await r.json()).msg||(await r.json()).error_description||'';}catch(e){}throw new Error(m||('Could not send ('+r.status+')'));}
+}
+async function signOut(){try{await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:sbHeaders()});}catch(e){}setSession(null);CLOUD='off';renderAcct();toast('Signed out — your collection stays in this browser');}
+$('#acct').onclick=()=>{
+  if(SESSION&&SESSION.user){openSheet(`<h3>${esc(SESSION.user.email||'Account')}</h3><p class="hint">${esc(syncText())}</p><div class="row"><button class="btn" id="so">Sign out</button><button class="btn pri" id="sync-now">Sync now</button></div>`);$('#so').onclick=()=>{closeSheet();signOut();};$('#sync-now').onclick=()=>{closeSheet();cloudPull();};return;}
+  if(location.protocol==='file:'||/claude\.ai|claudeusercontent/.test(location.host)){openSheet(`<h3>Sign in</h3><p class="hint">Account sign-in works on the public site. Here, your collection already syncs to your Claude account.</p><div class="row"><button class="btn pri" id="ok1">OK</button></div>`);$('#ok1').onclick=closeSheet;return;}
+  openSheet(`<h3>Sign in</h3><p class="hint">Enter your email and we'll send a one-tap sign-in link. No password. Your collection then follows you to every device.</p><input class="fld" id="em" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"><div class="row"><button class="btn" id="em-cancel">Cancel</button><button class="btn pri" id="em-go">Send link</button></div><div class="saved" id="em-msg"></div>`);
+  $('#em-cancel').onclick=closeSheet;const go=async()=>{const em=$('#em').value.trim();if(!em.includes('@')){$('#em-msg').textContent='Enter a valid email.';return;}$('#em-go').disabled=true;$('#em-msg').textContent='Sending…';try{await sendMagicLink(em);$('#em-msg').textContent='';sheet.querySelector('.hint').textContent='Check '+em+' for a link from Omnibinder (Supabase). Tap it on this device and you\'re in. The link expires in an hour.';$('#em-go').textContent='Sent';}catch(e){$('#em-go').disabled=false;$('#em-msg').textContent=e.message;}};
+  $('#em-go').onclick=go;$('#em').addEventListener('keydown',e=>{if(e.key==='Enter')go();});$('#em').focus();
+};
+
 // ---------- collection view ----------
 function setView(v){VIEW=v;$('#tab-binder').classList.toggle('on',v==='binder');$('#tab-coll').classList.toggle('on',v==='coll');
   $('#results').hidden=v!=='binder';$('#coll').hidden=v!=='coll';
@@ -719,7 +787,7 @@ function renderColl(){
   if(f){const ps=f.c.map(k=>PK.get(k)).filter(p=>p!=null);
     cards=ps.length?`<p class="sec">${ps.length} card${ps.length===1?'':'s'} in this folder</p><div class="grid" style="--cols:${F.cols}">${ps.map(tile).join('')}</div>`:(ks.length?'':`<div class="cempty"><b>${esc(f.n)} is empty.</b><br>Tap <b>Add cards</b> to pick from the binder, or make a folder inside it.</div>`);}
   else if(!ks.length)cards=`<div class="cempty"><b>No folders yet.</b><br>Make one for a set you're chasing, a master set, or a trade binder. Folders can hold folders.</div>`;
-  const sync=dbColl?'Synced to your Claude account and saved in this browser.':savedText();
+  const sync=dbColl?'Synced to your Claude account and saved in this browser.':syncText();
   const backup=CUR?'':`<div class="savebar"><span id="savedat">${esc(sync)}</span><span class="flex"></span><button class="tbtn" id="bk-dl">Backup</button><button class="tbtn" id="bk-up">Restore</button><input type="file" id="bk-file" accept="application/json,.json" hidden></div>`;
   R.innerHTML=crumbs+tools+fold+cards+backup;
   if(!CUR){
@@ -733,7 +801,7 @@ function renderColl(){
       $('#bk-apply').onclick=()=>{let d;try{d=JSON.parse($('#bk-paste').value);}catch(e){toast('That is not a backup file');return;}if(!d||d.app!=='omnibinder'){toast('That is not an Omnibinder backup');return;}
         let n=0;for(const [id,e] of Object.entries(d.coll||{})){const ne=normEntry(Object.assign({sid:id},e));if(!ne)continue;const cur=COLL[id]||{o:{},n:''};const o=Object.assign({},cur.o,ne.o);const note=cur.n||ne.n;COLL[id]={o,n:note};n++;dbColl&&dbColl.doc(id).set({o,n:note}).catch(()=>{});}
         let nf=0;for(const [id,f] of Object.entries(d.folders||{})){if(!f||typeof f.n!=='string')continue;const cur=FOLDERS[id];const merged=cur?{n:cur.n,p:cur.p,c:[...new Set([...cur.c,...(f.c||[])])],t:cur.t}:{n:f.n,p:f.p||'',c:Array.isArray(f.c)?f.c:[],t:f.t||Date.now()};FOLDERS[id]=merged;dbFold&&dbFold.doc(id).set(merged).catch(()=>{});nf++;}
-        saveLocal();saveFolders();updateOwnPill();updateCollCount();closeSheet();renderColl();toast('Restored '+n+' cards, '+nf+' folders');};};
+        saveLocal();saveFolders();updateOwnPill();updateCollCount();closeSheet();renderColl();cloudPushSoon();toast('Restored '+n+' cards, '+nf+' folders');};};
   }
   R.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{CUR=b.dataset.go;renderColl();});
   R.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{CUR=b.dataset.open;renderColl();});
