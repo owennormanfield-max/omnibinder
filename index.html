@@ -239,7 +239,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.1625";</script>
+<script>const BUILD="2026-10-27.1632";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -400,7 +400,7 @@ window.checkBack=function(img){const url=img.src;if(BACKS.has(url)){if(BACKS.get
     BACKS.set(url,back);if(back)document.querySelectorAll('img.img[src="'+url+'"]').forEach(el=>el.remove());};probe.onerror=()=>BACKS.set(url,false);probe.src=url;};
 const OXIMG={'zh-tw':'https://asia.pokemon-card.com/','th':'https://asia.pokemon-card.com/','id':'https://asia.pokemon-card.com/','ko':'https://pokemoncard.co.kr/public-assets/home/data/cards.image_www/data/wmimages/'};
 const oxUrl=(c,lg)=>{const o=c[17]||{};const k=o[lg]?lg:Object.keys(o)[0];return k?OXIMG[k]+o[k]:'';};
-const imgUrl=(c,s)=>{if(c[13])return PIMG+c[13];const o=c[17]||{};if(o[L()])return OXIMG[L()]+o[L()];const lg=imgLang(c,s);if(lg)return 'https://assets.tcgdex.net/'+lg+'/'+(s.si||'')+'/'+s.i+'/'+c[1]+'/low.webp';if(L()==='ja'&&c[16])return JPIMG+c[16];const ox=oxUrl(c,L());if(ox)return ox;if(c[16])return JPIMG+c[16];if(c[14])return PIMG+c[14];if(c[18])return TPIMG+c[18]+'_in_1000x1000.jpg';return '';};
+const imgUrl=(c,s)=>{if(c[19])return c[19];if(c[13])return PIMG+c[13];const o=c[17]||{};if(o[L()])return OXIMG[L()]+o[L()];const lg=imgLang(c,s);if(lg)return 'https://assets.tcgdex.net/'+lg+'/'+(s.si||'')+'/'+s.i+'/'+c[1]+'/low.webp';if(L()==='ja'&&c[16])return JPIMG+c[16];const ox=oxUrl(c,L());if(ox)return ox;if(c[16])return JPIMG+c[16];if(c[14])return PIMG+c[14];if(c[18])return TPIMG+c[18]+'_in_1000x1000.jpg';return '';};
 const TPIMG='https://tcgplayer-cdn.tcgplayer.com/product/';
 const imgAlts=(c,s)=>{const out=[];const lg=imgLang(c,s);if(lg&&c[16])out.push(JPIMG+c[16]);if((lg||c[16])&&c[14])out.push(PIMG+c[14]);if((lg||c[16]||c[14])&&c[18])out.push(TPIMG+c[18]+'_in_1000x1000.jpg');return out;};
 const apiUrl=(c,s)=>'https://api.tcgdex.net/v2/'+(imgLang(c,s)||(c.langs.includes(L())?L():c.langs[0]))+'/cards/'+s.i+'-'+c[1];
