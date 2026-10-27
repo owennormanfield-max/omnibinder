@@ -121,6 +121,45 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .opt .n{font-family:var(--font-num);font-size:12px;color:var(--fg2);font-variant-numeric:tabular-nums}
 .opt .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--accent-ink)}
 .opt.on .tick{background:var(--accent);border-color:var(--accent)}
+/* tabs */
+.tabs{display:flex;gap:4px;background:var(--bg3);border-radius:999px;padding:3px;margin-bottom:10px}
+.tab{flex:1;padding:8px 10px;border-radius:999px;font-weight:600;color:var(--fg2);text-align:center}
+.tab.on{background:var(--bg2);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.tab .n{font-family:var(--font-num);font-weight:500;font-size:12px;color:var(--fg3);margin-left:4px}
+.pickbar{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--accent) 18%,var(--bg2));border:1px solid var(--accent);border-radius:12px;padding:9px 12px;margin-block:8px 2px;font-size:14px}
+.pickbar b{font-weight:600}
+.pickbar .flex{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pickbar button{color:var(--accent);font-weight:700}
+.card.picked{outline:2px solid var(--accent);outline-offset:-2px}
+.card .inf{position:absolute;right:6px;bottom:6px;z-index:3;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--font-num);font-size:11px;font-weight:700}
+/* collection */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:14px;color:var(--fg2);padding-block:6px 10px}
+.crumbs button{color:var(--fg2);font-weight:500;padding:4px 6px;border-radius:8px}
+.crumbs button:hover{background:var(--bg3)}
+.crumbs .cur{color:var(--fg);font-weight:600}
+.crumbs .sep{opacity:.5}
+.ctools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 13px;border-radius:999px;background:var(--bg3);font-weight:600;font-size:14px}
+.tbtn.pri{background:var(--accent);color:var(--accent-ink)}
+.tbtn svg{width:16px;height:16px}
+.folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.folder{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);text-align:left;min-width:0}
+.folder svg{width:26px;height:26px;flex:none;color:var(--accent)}
+.folder .fn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.folder .fc{font-family:var(--font-num);font-size:11px;color:var(--fg2);font-variant-numeric:tabular-nums}
+.folder .fm{margin-left:auto;color:var(--fg3);padding:4px;flex:none}
+.cempty{padding:28px 10px;text-align:center;color:var(--fg2);border:1px dashed var(--line);border-radius:14px}
+.cempty b{color:var(--fg)}
+.sec{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2);margin:0 0 8px}
+.sheet .fld{width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px}
+.tree{display:flex;flex-direction:column;gap:2px;max-height:48vh;overflow:auto}
+.tree .tn{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;width:100%;text-align:left}
+.tree .tn:hover{background:var(--bg3)}
+.tree .tn.on{background:color-mix(in srgb,var(--accent) 16%,var(--bg3))}
+.tree .tn svg{width:18px;height:18px;color:var(--accent);flex:none}
+.tree .tn .n{font-family:var(--font-num);font-size:12px;color:var(--fg2);margin-left:auto}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:30;opacity:0;transition:opacity .15s;pointer-events:none;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1}
 .sheet .row{display:flex;gap:8px;margin-top:14px}
 .btn{flex:1;padding:12px;border-radius:12px;background:var(--bg3);font-weight:600;text-align:center}
 .btn.pri{background:var(--accent);color:var(--accent-ink)}
@@ -168,6 +207,8 @@ button{cursor:pointer;border:0;background:none;padding:0}
     <span class="spacer"></span>
     <span class="pill" id="ownpill">0 owned</span>
   </div>
+  <div class="tabs" role="tablist"><button class="tab on" id="tab-binder" role="tab">Binder</button><button class="tab" id="tab-coll" role="tab">Collection<span class="n" id="collcount"></span></button></div>
+  <div class="pickbar" id="pickbar" hidden></div>
   <div class="search">
     <label class="field"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Search name, number, set, illustrator…" autocomplete="off" aria-label="Search cards">
@@ -179,6 +220,8 @@ button{cursor:pointer;border:0;background:none;padding:0}
   <div class="status" id="status"></div>
 </div>
 
+<div id="coll" hidden></div>
+<div class="toast" id="toast"></div>
 <div id="results"><div class="loading">Opening the binder — 58,000 printings across 14 languages<div class="bar"><i></i></div></div></div>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -209,6 +252,8 @@ const ICON={
   era:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4m8-4v4"/></svg>',
   ill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 20 4-1L19 8l-3-3L5 16zM14 7l3 3"/></svg>',
   img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>',
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>',
   car:'<svg class="car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>'
 };
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -276,6 +321,35 @@ updateOwnPill();
     // push anything that only lived in this browser
     for(const [id,e] of Object.entries(COLL)){if(!snap.docs.some(d=>d.id===id))dbColl.doc(id).set({o:e.o,n:e.n||''}).catch(()=>{});}
     if(changed){saveLocal();updateOwnPill();render();}
+  }catch(e){}
+})();
+
+// ---------- collection folders ----------
+// FOLDERS: id -> {n:name, p:parentId|'' , c:[printKey...], t:created}
+let FOLDERS=LS('omni.folders')||{};
+let dbFold=null;let VIEW='binder',CUR='',PICK=null;
+const saveFolders=()=>LSset('omni.folders',FOLDERS);
+const newId=()=>'f'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const pkeyOf=p=>{const c=CARDS[P_C[p]];return c.sid+'|'+vkey(c[11][P_V[p]]);};
+const PK=new Map();for(let p=0;p<NP;p++)PK.set(pkeyOf(p),p);
+function putFolder(id,f){FOLDERS[id]=f;saveFolders();dbFold&&dbFold.doc(id).set({n:f.n,p:f.p,c:f.c,t:f.t}).catch(()=>{});updateCollCount();}
+function dropFolder(id){for(const k in FOLDERS)if(FOLDERS[k].p===id)dropFolder(k);delete FOLDERS[id];saveFolders();dbFold&&dbFold.doc(id).delete().catch(()=>{});updateCollCount();}
+const kids=id=>Object.entries(FOLDERS).filter(([k,f])=>f.p===id).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([k])=>k);
+function countDeep(id){const f=FOLDERS[id];let n=f?f.c.length:0;for(const k of kids(id))n+=countDeep(k);return n;}
+function pathOf(id){const out=[];while(id&&FOLDERS[id]){out.unshift(id);id=FOLDERS[id].p;}return out;}
+const inFolders=pk=>Object.entries(FOLDERS).filter(([k,f])=>f.c.includes(pk)).map(([k])=>k);
+function updateCollCount(){const all=new Set();for(const f of Object.values(FOLDERS))f.c.forEach(x=>all.add(x));$('#collcount').textContent=all.size?all.size.toLocaleString():'';}
+updateCollCount();
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),1400);}
+(async()=>{
+  try{
+    const db=await claude.use('db');const user=await claude.use('user');
+    if(!db||!user)return;
+    const uid=await user.id();dbFold=db.collection('data/users/'+uid+'/binder/folders');
+    const snap=await dbFold.get();let changed=false;
+    snap.docs.forEach(d=>{const v=d.data();if(v&&typeof v.n==='string'){FOLDERS[d.id]={n:v.n,p:v.p||'',c:Array.isArray(v.c)?v.c:[],t:v.t||0};changed=true;}});
+    for(const [id,f] of Object.entries(FOLDERS)){if(!snap.docs.some(d=>d.id===id))dbFold.doc(id).set({n:f.n,p:f.p,c:f.c,t:f.t}).catch(()=>{});}
+    if(changed){saveFolders();updateCollCount();if(VIEW==='coll')renderColl();}
   }catch(e){}
 })();
 
@@ -363,7 +437,7 @@ function tile(p){
       <div class="sub">${c[5]?`<span class="hp">${c[5]} HP</span>`:''}<span>${esc(s.a||s.i.toUpperCase())}</span></div>
       <div class="pr" data-p="${i}">${priceText(i)}</div></div>
     <span class="vd">${c[11].slice(0,8).map(x=>`<i class="${VT[x[0]]==='holo'?'h':VT[x[0]]==='reverse'?'r':'n'}${F.unit==='print'&&x===v?' cur':''}"></i>`).join('')}</span>
-    ${own?'<span class="own">✓</span>':''}
+    ${(()=>{const nf=inFolders(pkeyOf(p)).length;if(PICK&&FOLDERS[PICK]&&FOLDERS[PICK].c.includes(pkeyOf(p)))return '<span class="inf">✓</span>';return own?'<span class="own">✓</span>':(nf?`<span class="inf" title="in ${nf} folder${nf>1?'s':''}">${nf}</span>`:'');})()}
     ${e&&e.n?`<svg class="note" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h14a2 2 0 0 1 2 2v10l-6 6H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm9 16v-4h4z"/></svg>`:''}
   </button>`;
 }
@@ -442,7 +516,7 @@ const sheet=$('#sheet'),scrim=$('#scrim');
 function openSheet(html){sheet.innerHTML='<div class="grab"></div>'+html;sheet.hidden=false;scrim.hidden=false;requestAnimationFrame(()=>{sheet.classList.add('show');scrim.classList.add('show');});}
 function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');setTimeout(()=>{sheet.hidden=true;scrim.hidden=true;sheet.innerHTML='';},220);}
 scrim.addEventListener('click',closeSheet);
-function persist(){LSset('omni.filters',F);renderRail();render();}
+function persist(){LSset('omni.filters',F);renderRail();render();if(location.hash==='#collection')setView('coll');}
 
 function countBy(fn){const m=new Map();for(const c of CARDS){if(!c[2][F.lang])continue;const k=fn(c);if(k==null)continue;if(Array.isArray(k))k.forEach(x=>m.set(x,(m.get(x)||0)+1));else m.set(k,(m.get(k)||0)+1);}return m;}
 function optionSheet(title,hint,opts,selected,multi,onPick,extra){
@@ -511,11 +585,27 @@ function openCard(p){
     </dl></div></div>
     <div class="names">${names}</div>
     <div class="vars"><h4>Printings · ${c[11].length} · tick the ones you own</h4>${c[11].map((v,vi)=>{const k=vkey(v);const on=!!(e.o&&e.o[k]);return `<button class="vt${on?' on':''}${vi===cur?' cur':''}" data-k="${esc(k)}" role="switch" aria-checked="${on}"><span>${esc(vlabel(v))}</span><span class="sw2"></span></button>`;}).join('')}</div>
-    <div class="notes"><h4>Notes</h4><textarea id="note" placeholder="Condition, price paid, where it lives…">${esc(e.n)}</textarea><div class="saved" id="saved"></div></div>`);
+    <div class="notes"><h4>Notes</h4><textarea id="note" placeholder="Condition, price paid, where it lives…">${esc(e.n)}</textarea><div class="saved" id="saved"></div></div>
+    <div class="vars" id="infold"><h4>Folders</h4>${folderChips(p)}</div>
+    <div class="row"><button class="btn pri" id="addfold">Add to folder…</button>${VIEW==='coll'&&CUR&&FOLDERS[CUR]&&FOLDERS[CUR].c.includes(pkeyOf(p))?'<button class="btn" id="rmfold">Remove from this folder</button>':''}</div>`);
+  $('#addfold').onclick=()=>openFolderPicker(p);
+  const rm=$('#rmfold');if(rm)rm.onclick=()=>{const f=FOLDERS[CUR];f.c=f.c.filter(x=>x!==pkeyOf(p));putFolder(CUR,f);closeSheet();renderColl();toast('Removed from '+f.n);};
   loadPrice(i).then(()=>{const d=$('#detprice');if(d)d.innerHTML=priceText(i);});
   let o=Object.assign({},e.o||{});
   sheet.querySelectorAll('.vt').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(o[k])delete o[k];else o[k]=1;b.classList.toggle('on');b.setAttribute('aria-checked',!!o[k]);setEntry(c.sid,o,$('#note').value);refreshTile(i);});
   let t;$('#note').addEventListener('input',()=>{clearTimeout(t);$('#saved').textContent='…';t=setTimeout(()=>{setEntry(c.sid,o,$('#note').value);$('#saved').textContent='Saved';refreshTile(i);},500);});
+}
+function folderChips(p){const ids=inFolders(pkeyOf(p));if(!ids.length)return '<p class="hint" style="margin:0">Not in any folder yet.</p>';return '<div class="names">'+ids.map(id=>`<span>${esc(pathOf(id).map(x=>FOLDERS[x].n).join(' / '))}</span>`).join('')+'</div>';}
+function openFolderPicker(p){
+  const pk=pkeyOf(p);let sel=CUR&&FOLDERS[CUR]?CUR:(kids('')[0]||'');
+  const open=new Set(pathOf(sel));
+  const tree=()=>{const rows=[];const walk=(id,d)=>{for(const k of kids(id)){const f=FOLDERS[k];const has=f.c.includes(pk);rows.push(`<button class="tn${k===sel?' on':''}" data-id="${k}" style="padding-left:${10+d*18}px">${ICON.folder}<span>${esc(f.n)}</span>${has?'<span class="n">added</span>':`<span class="n">${countDeep(k)}</span>`}</button>`);if(open.has(k)||true)walk(k,d+1);}};walk('',0);return rows.join('')||'<p class="hint">No folders yet — make one below.</p>';};
+  openSheet(`<h3>Add to folder</h3><p class="hint">Pick a folder, or create one.</p><div class="tree" id="ftree">${tree()}</div>
+    <div class="row"><input class="fld" id="newfname" placeholder="New folder name"><button class="btn" id="mkfold" style="flex:0 0 auto">Create</button></div>
+    <div class="row"><button class="btn pri" id="pickdone">Add here</button></div>`);
+  $('#ftree').addEventListener('click',e=>{const b=e.target.closest('.tn');if(!b)return;sel=b.dataset.id;$('#ftree').innerHTML=tree();});
+  $('#mkfold').onclick=()=>{const n=$('#newfname').value.trim();if(!n)return;const id=newId();putFolder(id,{n,p:sel||'',c:[],t:Date.now()});sel=id;$('#newfname').value='';$('#ftree').innerHTML=tree();};
+  $('#pickdone').onclick=()=>{if(!sel||!FOLDERS[sel]){toast('Pick a folder first');return;}const f=FOLDERS[sel];if(!f.c.includes(pk)){f.c.push(pk);putFolder(sel,f);}closeSheet();toast('Added to '+f.n);refreshTile(P_C[p]);if(VIEW==='coll')renderColl();};
 }
 function refreshTile(i){document.querySelectorAll(`.card[data-c="${i}"]`).forEach(el=>{el.outerHTML=tile(+el.dataset.i);});renderStatus();}
 
@@ -603,11 +693,48 @@ async function loadPrice(i){
 const priceIO=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting){priceIO.unobserve(e.target);if(!netDead)loadPrice(+e.target.dataset.c);else e.target.querySelector('.pr').innerHTML='<span class="dim">price: hosted site only</span>';}}},{rootMargin:'300px'});
 new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType!==1)continue;if(n.matches&&n.matches('.card'))priceIO.observe(n);n.querySelectorAll&&n.querySelectorAll('.card').forEach(x=>priceIO.observe(x));}}).observe($('#results'),{childList:true,subtree:true});
 
+// ---------- collection view ----------
+function setView(v){VIEW=v;$('#tab-binder').classList.toggle('on',v==='binder');$('#tab-coll').classList.toggle('on',v==='coll');
+  $('#results').hidden=v!=='binder';$('#coll').hidden=v!=='coll';
+  ['.search','#rail','#status'].forEach(s=>{const el=$(s);if(el)el.hidden=v!=='binder';});
+  try{history.replaceState(null,'','#'+(v==='coll'?'collection':'binder'));}catch(e){}
+  if(v==='coll')renderColl();}
+function renderColl(){
+  const R=$('#coll');const f=CUR&&FOLDERS[CUR]?FOLDERS[CUR]:null;if(CUR&&!f)CUR='';
+  const path=pathOf(CUR);
+  const crumbs=`<nav class="crumbs"><button data-go="">All folders</button>${path.map(id=>`<span class="sep">›</span><button data-go="${id}" class="${id===CUR?'cur':''}">${esc(FOLDERS[id].n)}</button>`).join('')}</nav>`;
+  const tools=`<div class="ctools"><button class="tbtn" id="c-new">${ICON.plus}New folder</button>${f?`<button class="tbtn pri" id="c-add">${ICON.plus}Add cards</button><button class="tbtn" id="c-ren">Rename</button><button class="tbtn" id="c-del">Delete</button>`:''}</div>`;
+  const ks=kids(CUR);
+  const fold=ks.length?`<div class="folders">${ks.map(k=>`<button class="folder" data-open="${k}">${ICON.folder}<span style="min-width:0"><div class="fn">${esc(FOLDERS[k].n)}</div><div class="fc">${countDeep(k)} card${countDeep(k)===1?'':'s'}${kids(k).length?' · '+kids(k).length+' folder'+(kids(k).length===1?'':'s'):''}</div></span></button>`).join('')}</div>`:'';
+  let cards='';
+  if(f){const ps=f.c.map(k=>PK.get(k)).filter(p=>p!=null);
+    cards=ps.length?`<p class="sec">${ps.length} card${ps.length===1?'':'s'} in this folder</p><div class="grid" style="--cols:${F.cols}">${ps.map(tile).join('')}</div>`:(ks.length?'':`<div class="cempty"><b>${esc(f.n)} is empty.</b><br>Tap <b>Add cards</b> to pick from the binder, or make a folder inside it.</div>`);}
+  else if(!ks.length)cards=`<div class="cempty"><b>No folders yet.</b><br>Make one for a set you're chasing, a master set, or a trade binder. Folders can hold folders.</div>`;
+  R.innerHTML=crumbs+tools+fold+cards;
+  R.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{CUR=b.dataset.go;renderColl();});
+  R.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{CUR=b.dataset.open;renderColl();});
+  $('#c-new').onclick=()=>nameSheet('New folder',CUR?'Inside '+FOLDERS[CUR].n:'At the top level','',n=>{const id=newId();putFolder(id,{n,p:CUR,c:[],t:Date.now()});renderColl();});
+  if(f){
+    $('#c-add').onclick=()=>startPick(CUR);
+    $('#c-ren').onclick=()=>nameSheet('Rename folder','',f.n,n=>{f.n=n;putFolder(CUR,f);renderColl();});
+    $('#c-del').onclick=()=>{const n=countDeep(CUR),k=kids(CUR).length;openSheet(`<h3>Delete “${esc(f.n)}”?</h3><p class="hint">${n} card${n===1?'':'s'}${k?' and '+k+' subfolder'+(k===1?'':'s'):''} will be removed from your collection folders. Your owned ticks and notes stay.</p><div class="row"><button class="btn" id="dno">Keep it</button><button class="btn pri" id="dyes">Delete</button></div>`);$('#dno').onclick=closeSheet;$('#dyes').onclick=()=>{const p=f.p;dropFolder(CUR);CUR=p;closeSheet();renderColl();toast('Folder deleted');};};
+  }
+}
+function nameSheet(title,hint,val,cb){openSheet(`<h3>${esc(title)}</h3>${hint?`<p class="hint">${esc(hint)}</p>`:''}<input class="fld" id="fname" value="${esc(val)}" placeholder="Folder name"><div class="row"><button class="btn" id="fcancel">Cancel</button><button class="btn pri" id="fok">Save</button></div>`);
+  const inp=$('#fname');inp.focus();inp.select();const ok=()=>{const n=inp.value.trim();if(!n)return;closeSheet();cb(n);};$('#fok').onclick=ok;$('#fcancel').onclick=closeSheet;inp.addEventListener('keydown',e=>{if(e.key==='Enter')ok();});}
+function startPick(id){PICK=id;setView('binder');const bar=$('#pickbar');bar.hidden=false;bar.innerHTML=`<span>📂</span><span class="flex">Adding to <b>${esc(pathOf(id).map(x=>FOLDERS[x].n).join(' / '))}</b> — tap cards</span><button id="pickend">Done</button>`;$('#pickend').onclick=endPick;render();window.scrollTo({top:0});}
+function endPick(){const id=PICK;PICK=null;$('#pickbar').hidden=true;CUR=id;setView('coll');}
+$('#tab-binder').onclick=()=>{if(PICK)endPick();else setView('binder');};
+$('#tab-coll').onclick=()=>{if(PICK)endPick();else setView('coll');};
+
 // ---------- events ----------
 let qt;$('#q').addEventListener('input',()=>{$('#qclear').hidden=!$('#q').value;PHOTO=null;clearTimeout(qt);qt=setTimeout(render,180);});
 $('#qclear').onclick=()=>{$('#q').value='';$('#qclear').hidden=true;render();};
 $('#rail').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b)openFilter(b.dataset.k);});
-$('#results').addEventListener('click',e=>{const b=e.target.closest('.card');if(b)openCard(+b.dataset.i);});
+$('#results').addEventListener('click',e=>{const b=e.target.closest('.card');if(!b)return;const p=+b.dataset.i;
+  if(PICK&&FOLDERS[PICK]){const f=FOLDERS[PICK],pk=pkeyOf(p);const had=f.c.includes(pk);f.c=had?f.c.filter(x=>x!==pk):[...f.c,pk];putFolder(PICK,f);refreshTile(P_C[p]);toast((had?'Removed from ':'Added to ')+f.n+' · '+f.c.length);return;}
+  openCard(p);});
+$('#coll').addEventListener('click',e=>{const b=e.target.closest('.card');if(b)openCard(+b.dataset.i);});
 document.addEventListener('click',e=>{
   if(e.target.id==='reset'){Object.assign(F,{state:'all',vars:[],type:[],reg:[],rar:[],notes:'all',cat:[],stage:[],set:[],ser:[],hpmin:'',hpmax:'',yearmin:'',yearmax:'',ill:[]});$('#q').value='';$('#qclear').hidden=true;PHOTO=null;persist();}
   if(e.target.id==='photoclear'){PHOTO=null;render();}
