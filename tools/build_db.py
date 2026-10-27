@@ -19,8 +19,19 @@ simap = {sid: i for i, sid in enumerate(setids)}
 def normstamp(x): return x.lower().replace(' ', '-')
 PFX = 'https://images.pokemontcg.io/'
 cards = []; nv = 0
+import re
+BASIC_EN=re.compile(r'^(Basic )?(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy|Dragon|Colorless) Energy$',re.I)
+BASIC_JA=re.compile(r'^基本.*エネルギー$')
+def is_basic_energy(c):
+    if c.get('cat')!='Energy': return False
+    if c.get('energyType')=='Normal': return True
+    if c.get('energyType')=='Special': return False
+    n=c.get('name') or {}
+    return bool(BASIC_EN.match(n.get('en','')) or BASIC_JA.match(n.get('ja','')))
+skipped=0
 for c in C:
     if c['set'] not in simap: continue
+    if is_basic_energy(c): skipped+=1; continue
     r = c.get('rar'); r = None if r in (None, 'None') else r
     rg = c.get('reg'); rg = None if rg in (None, 'None') else rg.upper()
     vs = []
@@ -45,4 +56,4 @@ cards.sort(key=lambda c: (sdate(sets[c[0]]), c[1].zfill(4) if c[1].isdigit() els
 out = {'rar': rar, 'cat': cat, 'stage': stage, 'typ': typ, 'ill': ill, 'ser': ser, 'vt': VT, 'vst': VST, 'vstamp': VSTAMP, 'vfoil': VFOIL, 'sets': sets, 'cards': cards}
 rawb = json.dumps(out, separators=(',', ':'), ensure_ascii=False).encode()
 open(S_ + 'data/db.b64', 'w').write(base64.b64encode(gzip.compress(rawb, 9)).decode())
-print(len(cards), 'cards', len(sets), 'sets', nv, 'printings', len(rawb), 'bytes raw')
+print(len(cards), 'cards', len(sets), 'sets', nv, 'printings', len(rawb), 'bytes raw', skipped, 'basic energies excluded')
