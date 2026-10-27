@@ -28,6 +28,11 @@ def is_basic_energy(c):
     if c.get('energyType')=='Special': return False
     n=c.get('name') or {}
     return bool(BASIC_EN.match(n.get('en','')) or BASIC_JA.match(n.get('ja','')))
+def tpid(c):
+    if c.get('tp'): return c['tp']
+    for v in (c.get('vars') or []):
+        if isinstance(v, dict) and v.get('tp'): return v['tp']
+    return 0
 skipped=0
 for c in C:
     if c['set'] not in simap: continue
@@ -47,7 +52,7 @@ for c in C:
     alt = alt.replace(PFX, '') if alt.startswith(PFX) else alt
     cards.append([simap[c['set']], c['num'], c.get('name') or {}, idx(cat, c.get('cat')), idx(rar, r), c.get('hp') or 0,
                   [idx(typ, t) for t in (c.get('types') or [])], idx(stage, c.get('stage')), rg or '', (c.get('dex') or [0])[0] or 0,
-                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or '', c.get('ox') or {}])
+                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or '', c.get('ox') or {}, tpid(c)])
 def sdate(s):
     dd = s['d']
     if isinstance(dd, dict): dd = min(dd.values()) if dd else ''
