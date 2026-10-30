@@ -34,6 +34,7 @@ def tpid(c):
         if isinstance(v, dict) and v.get('tp'): return v['tp']
     return 0
 EXCL=json.load(open(S_+'exclusions.json'))
+NOEN=set(json.load(open(S_+'data/noen.json')))
 skipped=0;excluded=0
 for c in C:
     if c['set'] not in simap: continue
@@ -59,7 +60,7 @@ for c in C:
     alt = alt.replace(PFX, '') if alt.startswith(PFX) else alt
     cards.append([simap[c['set']], c['num'], c.get('name') or {}, idx(cat, c.get('cat')), idx(rar, r), c.get('hp') or 0,
                   [idx(typ, t) for t in (c.get('types') or [])], idx(stage, c.get('stage')), rg or '', (c.get('dex') or [0])[0] or 0,
-                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or '', c.get('ox') or {}, tpid(c), c.get('local') or ''])
+                  idx(ill, c.get('ill')), vs, c.get('suffix') or '', img, alt, c.get('scan') or [], c.get('jp') or '', c.get('ox') or {}, tpid(c), c.get('local') or '', 1 if (c['set']+'-'+c['num']) in NOEN else 0])
 def sdate(s):
     dd = s['d']
     if isinstance(dd, dict): dd = min(dd.values()) if dd else ''

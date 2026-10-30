@@ -239,7 +239,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 <footer class="foot">Omnibinder · build <span id="build"></span> · data from <a href="https://tcgdex.net" target="_blank" rel="noopener">TCGdex</a> and <a href="https://pokemontcg.io" target="_blank" rel="noopener">pokemontcg.io</a> · images and prices load live from TCGdex · no tracking</footer>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
-<script>const BUILD="2026-10-27.1702";</script>
+<script>const BUILD="2026-10-30.2004";</script>
 <script>
 (async function(){
 const $=s=>document.querySelector(s);
@@ -311,7 +311,7 @@ const LS=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null
 const LSset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 
 // ---------- filter state ----------
-const F=Object.assign({unit:'print',lang:'en',cols:3,split:'set',sort:'new',state:'all',vars:[],type:[],reg:[],rar:[],notes:'all',cat:[],stage:[],set:[],ser:[],hpmin:'',hpmax:'',yearmin:'',yearmax:'',ill:[],img:true},LS('omni.filters')||{});
+const F=Object.assign({unit:'print',lang:'en',cols:3,split:'set',sort:'new',state:'all',vars:[],type:[],reg:[],rar:[],notes:'all',cat:[],stage:[],set:[],ser:[],hpmin:'',hpmax:'',yearmin:'',yearmax:'',ill:[],img:true,noen:'all'},LS('omni.filters')||{});
 if(!LANGSET.has(F.lang))F.lang='en';
 let Q='',PHOTO=null; // PHOTO = {ids:[...], read:{...}}
 
@@ -416,6 +416,8 @@ function matches(c){
   if(!c[2][F.lang])return false;
   if(Q){const parts=Q.split(' ');for(const p of parts){if(!(c.search.includes(p)||s.search.includes(p)||c.vs.some(x=>x.includes(p))))return false;}}
   const e=COLL[c.sid];
+  if(F.noen==='only'&&!c[20])return false;
+  if(F.noen==='hide'&&c[20])return false;
   if(F.notes==='with'&&!(e&&e.n))return false;
   if(F.notes==='without'&&(e&&e.n))return false;
   if(F.type.length&&!c[6].some(t=>F.type.includes(t)))return false;
@@ -519,7 +521,7 @@ function renderMore(){
 function renderStatus(){
   const act=[];
   if(F.state!=='all')act.push(F.state);if(F.vars.length)act.push('variants');if(F.type.length)act.push('type');if(F.reg.length)act.push('reg. mark');if(F.rar.length)act.push('rarity');
-  if(F.notes!=='all')act.push('notes');if(F.cat.length)act.push('category');if(F.stage.length)act.push('stage');if(F.set.length)act.push('set');if(F.ser.length)act.push('series');if(F.ill.length)act.push('illustrator');
+  if(F.notes!=='all')act.push('notes');if(F.noen!=='all')act.push('not in English');if(F.cat.length)act.push('category');if(F.stage.length)act.push('stage');if(F.set.length)act.push('set');if(F.ser.length)act.push('series');if(F.ill.length)act.push('illustrator');
   if(F.hpmin!==''||F.hpmax!=='')act.push('HP');if(F.yearmin!==''||F.yearmax!=='')act.push('era');
   const owned=RESULT.filter(i=>F.unit==='card'?cOwned(CARDS[P_C[i]]):pOwned(i)).length;
   $('#status').innerHTML=`<span><b>${RESULT.length.toLocaleString()}</b> ${F.unit==='card'?'cards':'printings'} · <b>${owned.toLocaleString()}</b> owned${act.length?' · filtered by '+act.join(', '):''}</span><span class="flex"></span>${act.length||Q?'<button class="reset" id="reset">Clear filters</button>':''}`;
@@ -539,6 +541,7 @@ function val(k){
     case 'reg':return n(F.reg)||(F.reg.length?F.reg[0]:'');
     case 'rar':return n(F.rar)||(F.rar.length?RAR[F.rar[0]]:'');
     case 'notes':return {all:'',with:'Has note',without:'No note'}[F.notes];
+    case 'noen':return {all:'',only:'Only',hide:'Hidden'}[F.noen];
     case 'cat':return n(F.cat)||(F.cat.length?CAT[F.cat[0]]:'');
     case 'stage':return n(F.stage)||(F.stage.length?STAGE[F.stage[0]]:'');
     case 'set':return n(F.set)||(F.set.length?sname(SETS[F.set[0]]):'');
@@ -549,8 +552,8 @@ function val(k){
     case 'img':return F.img?'On':'Off';
   }
 }
-const RAIL=[['lang','International',ICON.lang],['unit','Catalog',ICON.var],['cols','Grid',ICON.grid],['split','Split',ICON.split],['sort','Sort',ICON.sort],['state','State',ICON.state],['vars','Variants',ICON.var],['type','Type',ICON.type],['reg','Regulation Mark',ICON.reg],['rar','Rarity',ICON.rar],['notes','Notes',ICON.notes],['cat','Category',ICON.cat],['stage','Stage',ICON.stage],['set','Set',ICON.set],['ser','Series',ICON.ser],['hp','HP',ICON.hp],['era','Era',ICON.era],['ill','Illustrator',ICON.ill],['img','Images',ICON.img]];
-const isOn=k=>({unit:false,lang:F.lang!=='en',cols:false,split:false,sort:false,state:F.state!=='all',vars:F.vars.length,type:F.type.length,reg:F.reg.length,rar:F.rar.length,notes:F.notes!=='all',cat:F.cat.length,stage:F.stage.length,set:F.set.length,ser:F.ser.length,hp:F.hpmin!==''||F.hpmax!=='',era:F.yearmin!==''||F.yearmax!=='',ill:F.ill.length,img:false}[k]);
+const RAIL=[['lang','International',ICON.lang],['unit','Catalog',ICON.var],['cols','Grid',ICON.grid],['split','Split',ICON.split],['sort','Sort',ICON.sort],['state','State',ICON.state],['vars','Variants',ICON.var],['type','Type',ICON.type],['reg','Regulation Mark',ICON.reg],['rar','Rarity',ICON.rar],['notes','Notes',ICON.notes],['noen','Not in English',ICON.lang],['cat','Category',ICON.cat],['stage','Stage',ICON.stage],['set','Set',ICON.set],['ser','Series',ICON.ser],['hp','HP',ICON.hp],['era','Era',ICON.era],['ill','Illustrator',ICON.ill],['img','Images',ICON.img]];
+const isOn=k=>({unit:false,lang:F.lang!=='en',cols:false,split:false,sort:false,state:F.state!=='all',vars:F.vars.length,type:F.type.length,reg:F.reg.length,rar:F.rar.length,notes:F.notes!=='all',noen:F.noen!=='all',cat:F.cat.length,stage:F.stage.length,set:F.set.length,ser:F.ser.length,hp:F.hpmin!==''||F.hpmax!=='',era:F.yearmin!==''||F.yearmax!=='',ill:F.ill.length,img:false}[k]);
 function vtokLabel(t){const [k,v]=t.split(':');return k==='t'?(FIN[v]||titleCase(v)):k==='f'?foilName(v):k==='sz'?'Jumbo':proper(v);}
 function renderRail(){
   $('#rail').innerHTML=RAIL.map(([k,label,ic])=>{const v=val(k);const lbl=k==='lang'?(LANGS.find(x=>x[0]===F.lang)[0]==='en'?'International':v):label;return `<button class="chip${isOn(k)?' on':''}" data-k="${k}">${k==='lang'?'':ic}<span>${esc(lbl)}</span>${k!=='lang'&&v?`<span class="v">${esc(v)}</span>`:''}${ICON.car}</button>`;}).join('');
@@ -593,6 +596,7 @@ function openFilter(k){
     case 'type':{const m=C(c=>c[6]);return optionSheet('Type','Energy type of the Pokémon.',TYP.map((t,i)=>({v:i,label:t,n:m.get(i)||0,color:'var(--t-'+t+')'})).sort((a,b)=>b.n-a.n),F.type,true,v=>{F.type=v.map(Number);persist();});}
     case 'reg':{const m=C(c=>c[8]||'—');const ks=[...m.keys()].sort();return optionSheet('Regulation Mark','The letter in the bottom-left corner (2019 onward). — means none printed.',ks.map(r=>({v:r,label:r==='—'?'— No mark':r,n:m.get(r)})),F.reg,true,v=>{F.reg=v;persist();});}
     case 'rar':{const m=C(c=>c[4]>=0?c[4]:null);return optionSheet('Rarity','As listed for the printed card.',RAR.map((r,i)=>({v:i,label:r,n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.rar,true,v=>{F.rar=v.map(Number);persist();});}
+    case 'noen':return optionSheet('Not in English','Japanese Pokémon cards that were never released in English (matched by HP, type, attacks and illustrator against every English card; Trainer and Energy cards are not judged). Shows 614 cards: Japan-only promos, the VS and web series, e-Card era cards skipped in English, and new Japanese sets not out in English yet.',[{v:'all',label:'Any'},{v:'only',label:'Only cards with no English version'},{v:'hide',label:'Hide them'}],[F.noen],false,v=>{F.noen=v[0];persist();});
     case 'notes':return optionSheet('Notes','Your own notes on a card (condition, price paid, where it is).',[{v:'all',label:'Any'},{v:'with',label:'Has a note'},{v:'without',label:'No note yet'}],[F.notes],false,v=>{F.notes=v[0];persist();});
     case 'cat':{const m=C(c=>c[3]);return optionSheet('Category','Pokémon, Trainer or Energy.',CAT.map((t,i)=>({v:i,label:t,n:m.get(i)||0})),F.cat,true,v=>{F.cat=v.map(Number);persist();});}
     case 'stage':{const m=C(c=>c[7]>=0?c[7]:null);return optionSheet('Stage','Evolution stage or mechanic.',STAGE.map((t,i)=>({v:i,label:t,n:m.get(i)||0})).filter(o=>o.n).sort((a,b)=>b.n-a.n),F.stage,true,v=>{F.stage=v.map(Number);persist();});}
