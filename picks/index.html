@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omnibinder Picks</title>
+<meta name="description" content="Owen's list of interesting Japanese Pokémon cards, with prices from TCG Republic.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Zen+Kaku+Gothic+New:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky toolbar, one responsive tile grid; the price is the loudest thing on each tile. */
+:root{--bg:#f3f5f8;--paper:#ffffff;--ink:#17202b;--mute:#5d6b7a;--line:#d9dfe6;--accent:#2f4bd6;--accent-ink:#ffffff;--price:#0f3d2e;--price-bg:#e3f3ea;--warn-bg:#fdecc8;--warn:#7a4b00;--promo:#8b2fd6;--shadow:0 1px 2px rgba(23,32,43,.08),0 8px 24px rgba(23,32,43,.08);
+ --display:'Manrope',system-ui,sans-serif;--jp:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101418;--paper:#182028;--ink:#edf1f5;--mute:#9aa7b4;--line:#2a343f;--accent:#7b90ff;--accent-ink:#0d1226;--price:#bfeed3;--price-bg:#17352a;--warn-bg:#3d2d0c;--warn:#f1c977;--promo:#c99bff;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101418;--paper:#182028;--ink:#edf1f5;--mute:#9aa7b4;--line:#2a343f;--accent:#7b90ff;--accent-ink:#0d1226;--price:#bfeed3;--price-bg:#17352a;--warn-bg:#3d2d0c;--warn:#f1c977;--promo:#c99bff;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:500 15px/1.45 var(--display);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+a{color:var(--accent)}button{font:inherit;color:inherit}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:12px 10px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px))) 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.brand h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.01em}.brand .sub{color:var(--mute);font-size:13px}
+.brand .acct{margin-left:auto;display:flex;gap:8px;align-items:center}
+.tabs{display:flex;gap:6px}.tab{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer}.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tools input[type=search]{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 12px;font:inherit;color:inherit}
+.tools select{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 10px;font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:700}.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.status{font-size:13px;color:var(--mute);margin:0 0 10px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.card{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;position:relative;outline:0}
+.card:focus-visible{box-shadow:0 0 0 3px var(--accent)}
+.card .pic{aspect-ratio:5/7;background:linear-gradient(180deg,var(--line),transparent);display:grid;place-items:center;overflow:hidden}.card img{width:100%;height:100%;object-fit:contain;display:block}
+.card .rank{position:absolute;left:8px;top:8px;background:rgba(23,32,43,.78);color:#fff;font:700 11px/1 var(--mono);padding:5px 7px;border-radius:7px}
+.card .mark{position:absolute;right:8px;top:8px;display:flex;gap:4px}.card .mark span{font:700 11px/1 var(--display);padding:5px 7px;border-radius:7px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
+.card .mark .have{background:var(--price-bg);color:var(--price)}.card .mark .want{background:var(--warn-bg);color:var(--warn)}
+.card .body{padding:10px 11px 11px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.card .nm{font-weight:800;font-size:14px;line-height:1.25;overflow-wrap:anywhere}.card .jp{font:500 12px/1.3 var(--jp);color:var(--mute);overflow-wrap:anywhere}
+.card .meta{font:500 11px/1.3 var(--mono);color:var(--mute);display:flex;gap:6px;flex-wrap:wrap}
+.card .price{margin-top:4px;font:700 17px/1 var(--mono);color:var(--price);background:var(--price-bg);padding:6px 8px;border-radius:8px;align-self:flex-start;font-variant-numeric:tabular-nums}
+.card .price small{font-size:11px;font-weight:500;opacity:.8}
+.flag{font:700 10px/1 var(--display);padding:4px 6px;border-radius:6px;background:var(--warn-bg);color:var(--warn);letter-spacing:.02em;text-transform:uppercase}
+.empty{padding:40px 0;color:var(--mute);text-align:center}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,14,20,.55);z-index:20}.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(680px,100%);max-height:92vh;overflow:auto;background:var(--paper);border-radius:18px 18px 0 0;z-index:21;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:var(--shadow)}
+.sheet .row{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:16px}@media (max-width:520px){.sheet .row{grid-template-columns:1fr}}
+.sheet img{width:100%;border-radius:10px;background:var(--bg)}.sheet h2{margin:0 0 2px;font-size:20px;text-wrap:balance}.sheet .jp{font:500 15px/1.3 var(--jp);color:var(--mute)}
+.sheet dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:12px 0}.sheet dt{color:var(--mute)}.sheet dd{margin:0;overflow-wrap:anywhere}
+.sheet .bigprice{font:700 28px/1 var(--mono);color:var(--price);font-variant-numeric:tabular-nums}
+.sheet .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.sheet textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);color:inherit;font:inherit;margin-top:10px}
+.toggle{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700}.toggle.on.have{background:var(--price-bg);color:var(--price);border-color:transparent}.toggle.on.want{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.x{position:absolute;right:10px;top:10px;border:0;background:var(--bg);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;z-index:30;font-weight:700;max-width:90vw}
+footer{margin-top:36px;color:var(--mute);font-size:12px;line-height:1.5}
+.acctbox{display:flex;flex-direction:column;gap:10px}.acctbox input{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 12px;font:inherit;color:inherit}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .12s}.card:hover{transform:translateY(-2px)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><h1>Omnibinder Picks</h1><span class="sub" id="sub">Japanese cards worth a look · prices from TCG Republic</span>
+    <div class="acct"><span id="who" class="sub"></span><button class="btn" id="acctBtn">Sign in</button></div></div>
+  <div class="tabs" role="tablist"><button class="tab" role="tab" data-tab="promo" aria-selected="true">Promos</button><button class="tab" role="tab" data-tab="normal" aria-selected="false">Normal cards</button><button class="tab" role="tab" data-tab="mine" aria-selected="false">My marks</button></div>
+  <div class="tools"><input type="search" id="q" placeholder="Search name, number, set, illustrator…" aria-label="Search">
+    <select id="sort" aria-label="Sort"><option value="pd">Price: high → low</option><option value="pa">Price: low → high</option><option value="nm">Name A → Z</option><option value="st">Set / number</option></select>
+    <select id="setf" aria-label="Set"><option value="">All sets</option></select></div>
+</header>
+<p class="status" id="status">Loading…</p>
+<div class="grid" id="grid"></div>
+<footer>Card images are cropped from Owen's own screenshots of TCG Republic product pages; names, numbers and prices come from the matching product page and are dated per card. Prices are TCG Republic's USD listing prices and change over time. Not affiliated with TCG Republic or The Pokémon Company. <span id="build"></span></footer>
+<div id="sheetHost"></div>
+<script>
+const BUILD='2026-11-05.0836';const SB_URL='https://biqxjeqfhgataxfzmyqy.supabase.co';const SB_KEY='sb_publishable_J4Wdod8-wNpejptXqzSFQw_25xnjKo4';
+const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let CARDS=[],TAB='promo',Q='',SORT='pd',SETF='';
+const LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}};
+let MARKS=LS('picks.marks')||{};  // id -> {h:1,w:1,n:'note'}
+let SESSION=LS('picks.session')||null,pushT=null;
+const fmt=p=>{if(p==null||p==='')return '—';const n=+p;const [d,c]=n.toFixed(2).split('.');return '$'+(+d).toLocaleString('en-US')+'<small>.'+c+'</small>';};
+const norm=s=>String(s||'').toLowerCase().normalize('NFKC');
+function filtered(){
+  const q=norm(Q).split(/\s+/).filter(Boolean);
+  let a=CARDS.filter(c=>TAB==='mine'?(MARKS[c.id]&&(MARKS[c.id].h||MARKS[c.id].w)):c.promo===(TAB==='promo'));
+  if(SETF)a=a.filter(c=>c.set===SETF);
+  if(q.length)a=a.filter(c=>{const h=c._s;return q.every(t=>h.includes(t));});
+  const key={pd:(x,y)=>(y.price??-1)-(x.price??-1),pa:(x,y)=>(x.price??1e9)-(y.price??1e9),nm:(x,y)=>x.name.localeCompare(y.name),st:(x,y)=>(x.set+x.num.padStart(4,'0')).localeCompare(y.set+y.num.padStart(4,'0'))}[SORT];
+  return a.sort(key);
+}
+function render(){
+  const a=filtered();const tot=a.reduce((s,c)=>s+(c.price||0),0);
+  $('#status').textContent=`${a.length} card${a.length===1?'':'s'} · listed value $${tot.toLocaleString('en-US',{maximumFractionDigits:0})}`;
+  const g=$('#grid');
+  if(!a.length){g.innerHTML='<div class="empty">Nothing here yet.</div>';return;}
+  g.innerHTML=a.map((c,i)=>{const m=MARKS[c.id]||{};return `<div class="card" tabindex="0" role="button" data-id="${esc(c.id)}">
+    <div class="pic"><img loading="lazy" src="${esc(c.img)}" alt="${esc(c.name)} ${esc(c.num)}/${esc(c.set)}"></div>
+    <span class="rank">#${i+1}</span><span class="mark">${m.h?'<span class="have">Have</span>':''}${m.w?'<span class="want">Want</span>':''}</span>
+    <div class="body"><div class="nm">${esc(c.name)}</div><div class="jp">${esc(c.jp)}</div>
+    <div class="meta"><span>${esc(c.num)}/${esc(c.set)}</span>${c.rar?`<span>${esc(c.rar)}</span>`:''}${c.flag?`<span class="flag">${esc(c.flag)}</span>`:''}</div>
+    <div class="price">${fmt(c.price)}</div></div></div>`;}).join('');
+}
+function openSheet(id){
+  const c=CARDS.find(x=>x.id===id);if(!c)return;const m=MARKS[id]||{};
+  $('#sheetHost').innerHTML=`<div class="scrim" id="scrim"></div><div class="sheet" role="dialog" aria-label="${esc(c.name)}"><button class="x" id="closeS" aria-label="Close">×</button>
+   <div class="row"><img src="${esc(c.img)}" alt=""><div><h2>${esc(c.name)}</h2><div class="jp">${esc(c.jp)}</div>
+   <div class="bigprice" style="margin:10px 0">${fmt(c.price)}</div>
+   <dl><dt>Number</dt><dd>${esc(c.num)}/${esc(c.set)}</dd><dt>Set</dt><dd>${esc(c.setname||'')}${c.setjp?` <span class="jp">${esc(c.setjp)}</span>`:''}</dd>${c.rar?`<dt>Rarity</dt><dd>${esc(c.rar)}</dd>`:''}${c.spec?`<dt>Finish</dt><dd>${esc(c.spec)}</dd>`:''}${c.ill?`<dt>Illustrator</dt><dd>${esc(c.ill)}</dd>`:''}<dt>Availability</dt><dd>${esc(c.avail||'')}</dd><dt>Price seen</dt><dd>${esc(c.date||'')}</dd></dl>
+   <div class="acts"><a class="btn" href="${esc(c.url)}" target="_blank" rel="noopener">Open on TCG Republic ↗</a>
+   <a class="btn" href="https://www.pricecharting.com/search-products?type=prices&q=${encodeURIComponent(c.name+' '+c.num+'/'+c.set+' japanese')}" target="_blank" rel="noopener">PriceCharting ↗</a></div>
+   <div class="acts"><button class="toggle have${m.h?' on':''}" data-m="h">${m.h?'✓ Have it':'Mark as have'}</button><button class="toggle want${m.w?' on':''}" data-m="w">${m.w?'★ Wanted':'Mark as want'}</button></div>
+   <textarea id="note" placeholder="Your note (where you saw it, condition, price paid…)">${esc(m.n||'')}</textarea></div></div></div>`;
+  $('#scrim').onclick=closeSheet;$('#closeS').onclick=closeSheet;
+  document.querySelectorAll('.sheet .toggle').forEach(b=>b.onclick=()=>{const k=b.dataset.m;MARKS[id]=MARKS[id]||{};MARKS[id][k]=MARKS[id][k]?0:1;save();openSheet(id);});
+  $('#note').oninput=e=>{MARKS[id]=MARKS[id]||{};MARKS[id].n=e.target.value;save(true);};
+}
+function closeSheet(){$('#sheetHost').innerHTML='';render();}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
+function save(quiet){for(const k in MARKS){const m=MARKS[k];if(!m.h&&!m.w&&!m.n)delete MARKS[k];}LS('picks.marks',MARKS);if(!quiet)render();clearTimeout(pushT);pushT=setTimeout(cloudPush,800);}
+/* ---- account (same Supabase project as Omnibinder) ---- */
+const sbH=()=>({apikey:SB_KEY,'Content-Type':'application/json',...(SESSION?{Authorization:'Bearer '+SESSION.access_token}:{})});
+function setSession(s){SESSION=s;LS('picks.session',s);renderAcct();}
+function renderAcct(){$('#who').textContent=SESSION?.user?.email||'';$('#acctBtn').textContent=SESSION?'Account':'Sign in';}
+async function handleHash(){const h=location.hash.slice(1);if(!h.includes('access_token'))return;const p=new URLSearchParams(h);history.replaceState(null,'',location.pathname);
+  const s={access_token:p.get('access_token'),refresh_token:p.get('refresh_token'),expires_at:Date.now()+(+p.get('expires_in')||3600)*1000};
+  try{const u=await (await fetch(SB_URL+'/auth/v1/user',{headers:{apikey:SB_KEY,Authorization:'Bearer '+s.access_token}})).json();s.user={id:u.id,email:u.email};setSession(s);toast('Signed in as '+u.email);await cloudPull();}catch(e){toast('Sign-in failed');}}
+async function fresh(){if(!SESSION)return false;if(Date.now()<SESSION.expires_at-60000)return true;try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:SESSION.refresh_token})});if(!r.ok)throw 0;const j=await r.json();setSession({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in||3600)*1000,user:SESSION.user});return true;}catch(e){setSession(null);return false;}}
+async function cloudPull(){if(!await fresh())return;try{const r=await fetch(SB_URL+'/rest/v1/picks?select=data,updated_at',{headers:sbH()});if(!r.ok)throw r.status;const rows=await r.json();if(rows[0]&&rows[0].data){const d=rows[0].data;for(const k in d){MARKS[k]=Object.assign({},d[k],MARKS[k]||{});}LS('picks.marks',MARKS);render();}}catch(e){if(e===404||e===401)toast('Cloud table not set up yet — marks stay in this browser');}}
+async function cloudPush(){if(!await fresh())return;try{const r=await fetch(SB_URL+'/rest/v1/picks',{method:'POST',headers:Object.assign(sbH(),{Prefer:'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({user_id:SESSION.user.id,data:MARKS,updated_at:new Date().toISOString()})});if(!r.ok)throw r.status;}catch(e){}}
+async function magic(email){const r=await fetch(SB_URL+'/auth/v1/otp?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,create_user:true})});if(!r.ok){let m='';try{m=(await r.json()).msg||'';}catch(e){}throw new Error(m||'Could not send ('+r.status+')');}}
+function acctSheet(){$('#sheetHost').innerHTML=`<div class="scrim" id="scrim"></div><div class="sheet" role="dialog" aria-label="Account"><button class="x" id="closeS" aria-label="Close">×</button><h2>Account</h2>
+  ${SESSION?`<p>Signed in as <b>${esc(SESSION.user.email)}</b>. Your Have / Want marks and notes sync to this account (same sign-in as Omnibinder).</p><div class="acts"><button class="btn" id="out">Sign out</button></div>`:
+  `<p>Sign in with an email link to keep your marks across devices. Works with the same account as Omnibinder.</p><div class="acctbox"><input type="email" id="em" placeholder="you@example.com" autocomplete="email"><button class="btn primary" id="send">Email me a sign-in link</button></div>`}</div>`;
+  $('#scrim').onclick=closeSheet;$('#closeS').onclick=closeSheet;
+  if(SESSION)$('#out').onclick=async()=>{try{await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:sbH()});}catch(e){}setSession(null);closeSheet();toast('Signed out — marks stay in this browser');};
+  else $('#send').onclick=async()=>{const em=$('#em').value.trim();if(!em)return;try{await magic(em);toast('Check your email for the link');closeSheet();}catch(e){toast(e.message);}};
+}
+/* ---- boot ---- */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{TAB=t.dataset.tab;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));LS('picks.tab',TAB);render();});
+$('#q').oninput=e=>{Q=e.target.value;render();};$('#sort').onchange=e=>{SORT=e.target.value;render();};$('#setf').onchange=e=>{SETF=e.target.value;render();};
+$('#grid').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)openSheet(c.dataset.id);});
+$('#grid').addEventListener('keydown',e=>{if(e.key==='Enter'){const c=e.target.closest('.card');if(c)openSheet(c.dataset.id);}});
+$('#acctBtn').onclick=acctSheet;
+(async()=>{renderAcct();await handleHash();
+  const r=await fetch('picks.json?v='+BUILD);const j=await r.json();CARDS=j.cards;$('#build').textContent='Build '+BUILD;
+  CARDS.forEach(c=>{c._s=norm([c.name,c.jp,c.num,c.set,c.setname,c.setjp,c.rar,c.ill,c.spec].join(' '));});
+  const sets=[...new Set(CARDS.map(c=>c.set))].sort();$('#setf').innerHTML='<option value="">All sets</option>'+sets.map(s=>`<option>${esc(s)}</option>`).join('');
+  const t=LS('picks.tab');if(t){TAB=t;document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===t));}
+  $('#sub').textContent=`${j.counts.promo} promos · ${j.counts.normal} normal cards · prices from TCG Republic`;
+  render();if(SESSION)cloudPull();})();
+</script>
+</body>
+</html>
